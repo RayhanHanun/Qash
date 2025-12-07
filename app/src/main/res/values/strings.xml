@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Qash_FinalProject</string>
+
+    <string-array name="payment_methods">
+        <item>Transfer Bank BCA</item>
+        <item>Transfer Bank Mandiri</item>
+        <item>Transfer Bank BRI</item>
+        <item>Indomaret / Alfamart</item>
+        <item>Mobile Banking Lainnya</item>
+    </string-array>
+
+    <string-array name="withdraw_merchants">
+        <item>Indomaret</item>
+        <item>Alfamart</item>
+        <item>ATM BCA (Cardless)</item>
+        <item>ATM BRI</item>
+    </string-array>
+</resources>
