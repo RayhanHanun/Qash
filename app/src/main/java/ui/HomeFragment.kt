@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
-import com.example.qash_finalproject.PaymentActivity
 import com.example.qash_finalproject.R
 import com.example.qash_finalproject.ScanActivity
 import com.example.qash_finalproject.TopUpActivity
@@ -97,10 +96,6 @@ class HomeFragment : Fragment() {
                     val menuNameRaw = tvMenu?.text.toString()
                     val cleanMenuName = menuNameRaw.replace("\n", " ") // Hapus enter jika ada
 
-                    // Buka PaymentActivity dengan membawa nama menu
-                    val intent = Intent(activity, PaymentActivity::class.java)
-                    intent.putExtra("MENU_NAME", cleanMenuName)
-                    startActivity(intent)
                 }
             }
         }
