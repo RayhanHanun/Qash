@@ -16,7 +16,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Qash_FinalProject">
         <activity
-            android:name=".PaymentActivity"
+            android:name="grid.EmoneyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".grid.ListrikActivity"
+            android:exported="false" />
+        <activity
+            android:name=".grid.PdamActivity"
+            android:exported="false" />
+        <activity
+            android:name=".grid.PulsaActivity"
             android:exported="false" />
         <activity
             android:name=".TransferFormActivity"
