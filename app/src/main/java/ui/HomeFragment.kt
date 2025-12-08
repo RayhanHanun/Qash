@@ -130,9 +130,12 @@ class HomeFragment : Fragment() {
                         menuName.contains("e-Money", ignoreCase = true) -> {
                             startActivity(Intent(activity, EmoneyActivity::class.java))
                         }
+                        // Di HomeFragment.kt, dalam when(menuName)
+                        menuName.contains("Internet", ignoreCase = true) || menuName.contains("TV", ignoreCase = true) -> {
+                            startActivity(Intent(activity, com.example.qash_finalproject.grid.InternetActivity::class.java))
+                        }
 
                         // Menu Lainnya (Placeholder)
-                        menuName.contains("Internet", ignoreCase = true) -> showToast("Fitur Internet & TV segera hadir!")
                         menuName.contains("BPJS", ignoreCase = true) -> showToast("Fitur BPJS dalam pengembangan.")
                         menuName.contains("Game", ignoreCase = true) -> showToast("Voucher Game coming soon!")
                         menuName.contains("Lainnya", ignoreCase = true) -> showToast("Lihat semua layanan...")

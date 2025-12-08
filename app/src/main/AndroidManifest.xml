@@ -16,7 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Qash_FinalProject">
         <activity
-            android:name="grid.EmoneyActivity"
+            android:name=".grid.InternetActivity"
+            android:exported="false" />
+        <activity
+            android:name=".grid.EmoneyActivity"
             android:exported="false" />
         <activity
             android:name=".grid.ListrikActivity"
