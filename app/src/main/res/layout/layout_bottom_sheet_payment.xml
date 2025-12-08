@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_grid_surface"> <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:layout_marginBottom="24dp">
+
+    <ImageView
+        android:id="@+id/img_bs_logo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_internet"/>
+
+    <TextView
+        android:id="@+id/tv_bs_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Biznet Home"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginStart="16dp"
+        android:textColor="@color/black"/>
+</LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No. Pelanggan"
+        android:textColor="#757575"/>
+
+    <EditText
+        android:id="@+id/et_customer_id"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_rounded_corner"
+        android:hint="Masukkan Nomor Pelanggan"
+        android:inputType="number"
+        android:paddingHorizontal="12dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="ℹ️ Pastikan nomor pelanggan sudah benar dan layanan aktif."
+        android:textSize="12sp"
+        android:textColor="#9E9E9E"/>
+
+    <Button
+        android:id="@+id/btn_pay_now"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="24dp"
+        android:text="Lihat Tagihan"
+        android:textStyle="bold"
+        android:backgroundTint="@color/qash_primary"/>
+
+</LinearLayout>
