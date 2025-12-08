@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Qash_FinalProject">
         <activity
+            android:name=".grid.PbbActivity"
+            android:exported="false" />
+        <activity
             android:name=".grid.InternetActivity"
             android:exported="false" />
         <activity

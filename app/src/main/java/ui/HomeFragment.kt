@@ -23,6 +23,7 @@ import com.example.qash_finalproject.data.QashDatabase
 // --- IMPORT ACTIVITY MENU GRID (PENTING) ---
 import com.example.qash_finalproject.grid.EmoneyActivity
 import com.example.qash_finalproject.grid.ListrikActivity
+import com.example.qash_finalproject.grid.PbbActivity
 import com.example.qash_finalproject.grid.PdamActivity
 import com.example.qash_finalproject.grid.PulsaActivity
 // -------------------------------------------
@@ -133,6 +134,9 @@ class HomeFragment : Fragment() {
                         // Di HomeFragment.kt, dalam when(menuName)
                         menuName.contains("Internet & TV Kabel", ignoreCase = true) -> {
                             startActivity(Intent(activity, com.example.qash_finalproject.grid.InternetActivity::class.java))
+                        }
+                        menuName.contains("PBB", ignoreCase = true) -> {
+                            startActivity(Intent(activity, PbbActivity::class.java))
                         }
 
                         // Menu Lainnya (Placeholder)
