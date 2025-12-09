@@ -36,15 +36,16 @@
             app:layout_constraintTop_toTopOf="@id/tv_logo">
 
             <LinearLayout
+                android:id="@+id/btn_top_promo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/ic_promo"
                     app:tint="@color/qash_primary"/>
 
@@ -54,7 +55,7 @@
                     android:text=" Promo"
                     android:textColor="@color/qash_primary"
                     android:textStyle="bold"
-                    android:textSize="12sp"/>
+                    android:textSize="14sp"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -431,7 +432,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="20dp"
             android:layout_marginStart="20dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/grid_menu" />
@@ -440,7 +441,7 @@
             android:id="@+id/vp_promo"
             android:layout_width="match_parent"
             android:layout_height="160dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="6dp"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:paddingHorizontal="24dp"

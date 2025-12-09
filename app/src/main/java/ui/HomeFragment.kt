@@ -20,13 +20,16 @@ import com.example.qash_finalproject.TopUpActivity
 import com.example.qash_finalproject.TransferActivity
 import com.example.qash_finalproject.WithdrawActivity
 import com.example.qash_finalproject.data.QashDatabase
-// --- IMPORT ACTIVITY MENU GRID (PENTING) ---
+// --- IMPORT SEMUA ACTIVITY MENU GRID ---
 import com.example.qash_finalproject.grid.EmoneyActivity
+import com.example.qash_finalproject.grid.InternetActivity
 import com.example.qash_finalproject.grid.ListrikActivity
 import com.example.qash_finalproject.grid.PbbActivity
 import com.example.qash_finalproject.grid.PdamActivity
 import com.example.qash_finalproject.grid.PulsaActivity
-// -------------------------------------------
+// --- IMPORT ACTIVITY PROMO ---
+import com.example.qash_finalproject.PromoActivity
+// ---------------------------------------
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
 import com.google.android.material.tabs.TabLayout
@@ -51,35 +54,49 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Inisialisasi View
+        // 1. Inisialisasi View & ViewModel
+        initViewModel(view)
+
+        // 2. Setup Header (Tombol Promo ada di sini)
+        setupHeaderActions(view)
+
+        // 3. Setup Tombol Aksi Utama (TopUp, Transfer, Scan)
+        setupMainButtons(view)
+
+        // 4. Setup Grid Menu (Pulsa, PBB, Internet, dll)
+        setupGridMenu(view)
+
+        // 5. Setup Carousel Banner
+        setupCarousel(view)
+    }
+
+    private fun initViewModel(view: View) {
         tvBalance = view.findViewById(R.id.tv_balance)
         tvGreeting = view.findViewById(R.id.tv_greeting)
 
-        // 2. Setup ViewModel & Database
         val application = requireNotNull(this.activity).application
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
 
-        // Cek User Default
+        // Cek User Default & Observasi Saldo
         viewModel.checkInitialization("Rayhan")
-
-        // Observasi Saldo Real-time
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
                 val formatRupiah = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                 tvBalance.text = formatRupiah.format(user.balance).replace(",00", "")
             }
         }
+    }
 
-        // 3. Setup Tombol Aksi Utama (Atas)
-        setupMainButtons(view)
+    // --- LOGIKA TOMBOL PROMO (DI HEADER ATAS) ---
+    private fun setupHeaderActions(view: View) {
+        // ID ini harus sesuai dengan yang ada di fragment_home.xml (btn_top_promo)
+        val btnTopPromo = view.findViewById<LinearLayout>(R.id.btn_top_promo)
 
-        // 4. Setup Grid Menu (Tengah)
-        setupGridMenu(view)
-
-        // 5. Setup Carousel Promo (Bawah)
-        setupCarousel(view)
+        btnTopPromo?.setOnClickListener {
+            startActivity(Intent(activity, PromoActivity::class.java))
+        }
     }
 
     private fun setupMainButtons(view: View) {
@@ -108,34 +125,35 @@ class HomeFragment : Fragment() {
                 val itemContainer = gridLayout.getChildAt(i) as? LinearLayout
 
                 itemContainer?.setOnClickListener {
-                    // Ambil teks dari TextView ke-2 (index 1) dalam item grid
+                    // Ambil teks menu dari TextView (anak ke-2 di dalam linear layout item)
                     val tvMenu = itemContainer.getChildAt(1) as? TextView
                     val menuNameRaw = tvMenu?.text.toString()
                     val menuName = menuNameRaw.replace("\n", " ").trim()
 
-                    // Logika Navigasi Menu
+                    // Navigasi berdasarkan nama menu
                     when {
-                        // 1. Menu Pulsa & Data
-                        menuName.contains("Pulsa & Data", ignoreCase = true) -> {
+                        // Pulsa
+                        menuName.contains("Pulsa", ignoreCase = true) -> {
                             startActivity(Intent(activity, PulsaActivity::class.java))
                         }
-                        // 2. Menu Listrik PLN
+                        // Listrik
                         menuName.contains("Listrik", ignoreCase = true) || menuName.contains("PLN", ignoreCase = true) -> {
                             startActivity(Intent(activity, ListrikActivity::class.java))
                         }
-                        // 3. Menu Air PDAM
-                        menuName.contains("PDAM", ignoreCase = true) -> {
+                        // PDAM
+                        menuName.contains("Air", ignoreCase = true) || menuName.contains("PDAM", ignoreCase = true) -> {
                             startActivity(Intent(activity, PdamActivity::class.java))
                         }
-                        // 4. Menu E-Money (BARU)
-                        menuName.contains("e-Money", ignoreCase = true) -> {
+                        // E-Money
+                        menuName.contains("Money", ignoreCase = true) || menuName.contains("Dompet", ignoreCase = true) -> {
                             startActivity(Intent(activity, EmoneyActivity::class.java))
                         }
-                        // Di HomeFragment.kt, dalam when(menuName)
-                        menuName.contains("Internet & TV Kabel", ignoreCase = true) -> {
-                            startActivity(Intent(activity, com.example.qash_finalproject.grid.InternetActivity::class.java))
+                        // Internet & TV Kabel
+                        menuName.contains("Internet", ignoreCase = true) || menuName.contains("TV", ignoreCase = true) -> {
+                            startActivity(Intent(activity, InternetActivity::class.java))
                         }
-                        menuName.contains("PBB", ignoreCase = true) -> {
+                        // PBB (Pajak)
+                        menuName.contains("PBB", ignoreCase = true) || menuName.contains("Pajak", ignoreCase = true) -> {
                             startActivity(Intent(activity, PbbActivity::class.java))
                         }
 
@@ -165,7 +183,7 @@ class HomeFragment : Fragment() {
             val promoAdapter = PromoAdapter(promoImages)
             vpPromo.adapter = promoAdapter
 
-            // Efek Zoom-Out Keren
+            // Efek Zoom-Out
             vpPromo.clipToPadding = false
             vpPromo.clipChildren = false
             vpPromo.offscreenPageLimit = 3
@@ -179,7 +197,7 @@ class HomeFragment : Fragment() {
             }
             vpPromo.setPageTransformer(compositePageTransformer)
 
-            // Hubungkan dengan Dot Indicator
+            // Indikator (Titik-titik)
             if (tabLayout != null) {
                 TabLayoutMediator(tabLayout, vpPromo) { _, _ -> }.attach()
             }

@@ -16,16 +16,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Qash_FinalProject">
         <activity
-            android:name=".grid.PbbActivity"
-            android:exported="false" />
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
-            android:name=".grid.InternetActivity"
-            android:exported="false" />
-        <activity
-            android:name=".grid.InternetPaymentActivity"
-            android:exported="false" />
-        <activity
-            android:name=".grid.EmoneyActivity"
+            android:name=".grid.PulsaActivity"
             android:exported="false" />
         <activity
             android:name=".grid.ListrikActivity"
@@ -33,30 +33,48 @@
         <activity
             android:name=".grid.PdamActivity"
             android:exported="false" />
+
         <activity
-            android:name=".grid.PulsaActivity"
+            android:name=".grid.EmoneyActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".grid.InternetActivity"
             android:exported="false" />
         <activity
-            android:name=".TransferFormActivity"
+            android:name=".grid.InternetPaymentActivity"
             android:exported="false" />
+
         <activity
-            android:name=".WithdrawActivity"
+            android:name=".grid.PbbActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".PromoActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PointsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".TopUpActivity"
+            android:exported="false" />
+
         <activity
             android:name=".TransferActivity"
             android:exported="false" />
         <activity
-            android:name=".TopUpActivity"
+            android:name=".WithdrawActivity"
             android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity
+            android:name=".ScanActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".TransferFormActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

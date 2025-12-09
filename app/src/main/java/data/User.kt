@@ -1,13 +1,13 @@
-package com.example.qash_finalproject.data // Sesuaikan package kamu
+package com.example.qash_finalproject.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "user_table")
 data class User(
-    @PrimaryKey(autoGenerate = false)
-    val id: Int = 1, // Kita cuma butuh 1 user, jadi ID-nya statis 1
-
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val name: String,
-    val balance: Long = 0 // Saldo awal 0, pakai Long biar angkanya bisa besar
+    val balance: Long,
+    val points: Long = 0 // <--- TAMBAHKAN INI (Default 0)
 )

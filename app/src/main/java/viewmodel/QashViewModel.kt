@@ -19,44 +19,53 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
     fun checkInitialization(defaultName: String) {
         viewModelScope.launch {
             try {
-                // Coba buat user baru dengan saldo 0
                 dao.insertUser(User(id = 1, name = defaultName, balance = 0))
             } catch (e: Exception) {
-                // Jika user sudah ada (error conflict), abaikan saja
+                // Abaikan jika user sudah ada
             }
         }
     }
 
-    // Fungsi Tambah Transaksi (Top Up / Transfer)
-    fun addTransaction(type: String, amount: Long, note: String) {
+    // Fungsi Tambah Transaksi
+    fun addTransaction(type: String, amount: Long, description: String) {
         viewModelScope.launch {
-            // 1. Catat di Tabel Transaksi
-            val trx = Transaction(type = type, amount = amount, note = note)
-            dao.insertTransaction(trx)
-
-            // 2. Update Saldo User
-            // Menggunakan getUserSync() agar data pasti terambil meskipun di Activity lain
-            val currentUser = dao.getUserSync()
-
+            val currentUser = user.value
             if (currentUser != null) {
-                val currentBalance = currentUser.balance
+                var newBalance = currentUser.balance
+                var newPoints = currentUser.points
 
-                // Hitung Saldo Baru
-                val newBalance = if (type == "MASUK") {
-                    currentBalance + amount
+                if (type == "MASUK") {
+                    newBalance += amount
                 } else {
-                    currentBalance - amount
+                    // TIPE "KELUAR"
+                    if (newBalance >= amount) {
+                        newBalance -= amount
+                        // LOGIKA POIN: 1000 Rupiah = 1 Poin
+                        val pointsEarned = amount / 1000
+                        newPoints += pointsEarned
+                    } else {
+                        return@launch
+                    }
                 }
 
-                // Simpan Perubahan Saldo
-                val updatedUser = currentUser.copy(balance = newBalance)
-                dao.updateUser(updatedUser)
+                // Update User (GANTI 'repository' JADI 'dao')
+                val updatedUser = currentUser.copy(balance = newBalance, points = newPoints)
+                dao.updateUser(updatedUser) // <--- PERBAIKAN DISINI
+
+                // Simpan Riwayat (GANTI 'repository' JADI 'dao')
+                val newTransaction = Transaction(
+                    type = type,
+                    amount = amount,
+                    description = description,
+                    date = System.currentTimeMillis()
+                )
+                dao.insertTransaction(newTransaction) // <--- PERBAIKAN DISINI
             }
         }
     }
 }
 
-// Factory untuk ViewModel (Boilerplate)
+// --- PINDAHKAN FACTORY KE LUAR CLASS QashViewModel (DI BAWAH SINI) ---
 class QashViewModelFactory(private val dao: QashDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(QashViewModel::class.java)) {
