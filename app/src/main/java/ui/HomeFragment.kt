@@ -68,6 +68,11 @@ class HomeFragment : Fragment() {
 
         // 5. Setup Carousel Banner
         setupCarousel(view)
+
+        val btnPoints = view.findViewById<View>(R.id.btn_qash_points) // Pastikan ID ini sudah ditambahkan di XML
+        btnPoints?.setOnClickListener {
+            startActivity(Intent(activity, com.example.qash_finalproject.PointsActivity::class.java))
+        }
     }
 
     private fun initViewModel(view: View) {

@@ -43,7 +43,8 @@ class HistoryFragment : Fragment() {
         val rvHistory = view.findViewById<RecyclerView>(R.id.rv_history)
         layoutEmpty = view.findViewById(R.id.layout_empty)
 
-        adapter = TransactionAdapter(emptyList())
+        // PERBAIKAN 1: Konstruktor ListAdapter tidak butuh parameter
+        adapter = TransactionAdapter()
         rvHistory.adapter = adapter
         rvHistory.layoutManager = LinearLayoutManager(context)
 
@@ -55,11 +56,13 @@ class HistoryFragment : Fragment() {
             } else {
                 rvHistory.visibility = View.VISIBLE
                 layoutEmpty.visibility = View.GONE
-                adapter.setData(transactions)
+
+                // PERBAIKAN 2: Gunakan submitList(), bukan setData()
+                adapter.submitList(transactions)
             }
         }
 
-        // 4. Fitur Search (Bonus)
+        // 4. Fitur Search
         val etSearch = view.findViewById<EditText>(R.id.et_search)
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -76,6 +79,8 @@ class HistoryFragment : Fragment() {
         val filteredList = fullList.filter {
             it.note.contains(query, ignoreCase = true)
         }
-        adapter.setData(filteredList)
+
+        // PERBAIKAN 3: Gunakan submitList()
+        adapter.submitList(filteredList)
     }
 }

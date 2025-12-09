@@ -5,7 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [User::class, Transaction::class], version = 1, exportSchema = false)
+// 1. Naikkan version menjadi 2
+@Database(entities = [User::class, Transaction::class], version = 2, exportSchema = false)
 abstract class QashDatabase : RoomDatabase() {
 
     abstract fun qashDao(): QashDao
@@ -21,7 +22,8 @@ abstract class QashDatabase : RoomDatabase() {
                     QashDatabase::class.java,
                     "qash_database"
                 )
-                    // Callback opsional bisa ditambah di sini nanti kalau mau isi data awal
+                    // 2. Tambahkan baris ini agar database lama otomatis di-reset saat struktur berubah
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

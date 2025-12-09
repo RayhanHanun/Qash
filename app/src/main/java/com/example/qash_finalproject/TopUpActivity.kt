@@ -19,22 +19,23 @@ class TopUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_top_up)
 
-        // 1. Setup ViewModel (Penghubung ke Database)
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
 
-        // 2. Inisialisasi Komponen UI
+        // PENTING: Observasi User agar data ter-load sebelum transaksi
+        viewModel.user.observe(this) {
+            // Data user siap digunakan
+        }
+
         val etAmount: TextInputEditText = findViewById(R.id.et_amount)
         val spinnerMethod: Spinner = findViewById(R.id.spinner_method)
         val btnSave: Button = findViewById(R.id.btn_save)
 
-        // 3. Aksi saat tombol diklik
         btnSave.setOnClickListener {
             val amountString = etAmount.text.toString()
             val selectedMethod = spinnerMethod.selectedItem.toString()
 
-            // Validasi Input
             if (amountString.isEmpty()) {
                 etAmount.error = "Nominal tidak boleh kosong"
                 return@setOnClickListener
@@ -47,13 +48,14 @@ class TopUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // 4. SIMPAN KE DATABASE
-            // Tipe: MASUK, Keterangan: Top Up via [Nama Bank]
-            viewModel.addTransaction("MASUK", amount, "Top Up via $selectedMethod")
-
-            // 5. Beri Feedback dan Tutup
-            Toast.makeText(this, "Top Up Rp $amount Berhasil!", Toast.LENGTH_LONG).show()
-            finish() // Kembali ke halaman Home
+            // PENTING: Gunakan Callback { finish() }
+            // Aplikasi hanya akan menutup layar SETELAH saldo berhasil tersimpan
+            viewModel.addTransaction("MASUK", amount, "Top Up via $selectedMethod") {
+                runOnUiThread {
+                    Toast.makeText(this, "Top Up Rp $amount Berhasil!", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+            }
         }
     }
 }

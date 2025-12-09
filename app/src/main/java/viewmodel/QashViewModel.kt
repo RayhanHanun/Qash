@@ -11,23 +11,20 @@ import kotlinx.coroutines.launch
 
 class QashViewModel(private val dao: QashDao) : ViewModel() {
 
-    // Data Live untuk UI
     val user: LiveData<User> = dao.getUser()
     val allTransactions: LiveData<List<Transaction>> = dao.getAllTransactions()
 
-    // Fungsi Cek User Awal
     fun checkInitialization(defaultName: String) {
         viewModelScope.launch {
             try {
                 dao.insertUser(User(id = 1, name = defaultName, balance = 0))
             } catch (e: Exception) {
-                // Abaikan jika user sudah ada
             }
         }
     }
 
-    // Fungsi Tambah Transaksi
-    fun addTransaction(type: String, amount: Long, description: String) {
+    // UPDATE: Tambahkan parameter 'onComplete' di akhir
+    fun addTransaction(type: String, amount: Long, description: String, onComplete: () -> Unit = {}) {
         viewModelScope.launch {
             val currentUser = user.value
             if (currentUser != null) {
@@ -37,10 +34,8 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
                 if (type == "MASUK") {
                     newBalance += amount
                 } else {
-                    // TIPE "KELUAR"
                     if (newBalance >= amount) {
                         newBalance -= amount
-                        // LOGIKA POIN: 1000 Rupiah = 1 Poin
                         val pointsEarned = amount / 1000
                         newPoints += pointsEarned
                     } else {
@@ -48,24 +43,26 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
                     }
                 }
 
-                // Update User (GANTI 'repository' JADI 'dao')
+                // Update Saldo
                 val updatedUser = currentUser.copy(balance = newBalance, points = newPoints)
-                dao.updateUser(updatedUser) // <--- PERBAIKAN DISINI
+                dao.updateUser(updatedUser)
 
-                // Simpan Riwayat (GANTI 'repository' JADI 'dao')
+                // Simpan Transaksi
                 val newTransaction = Transaction(
                     type = type,
                     amount = amount,
-                    description = description,
+                    note = description, // Pastikan ini 'note', bukan 'description'
                     date = System.currentTimeMillis()
                 )
-                dao.insertTransaction(newTransaction) // <--- PERBAIKAN DISINI
+                dao.insertTransaction(newTransaction)
+
+                // PENTING: Panggil onComplete setelah selesai simpan
+                onComplete()
             }
         }
     }
 }
 
-// --- PINDAHKAN FACTORY KE LUAR CLASS QashViewModel (DI BAWAH SINI) ---
 class QashViewModelFactory(private val dao: QashDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(QashViewModel::class.java)) {

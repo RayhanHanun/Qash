@@ -9,9 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.qash_finalproject.data.QashDatabase
-import com.example.qash_finalproject.points.PointsHistoryFragment
-import com.example.qash_finalproject.points.PointsRedeemFragment
 import com.example.qash_finalproject.viewmodel.QashViewModel
+import com.example.qash_finalproject.viewmodel.QashViewModelFactory // Pastikan ter-import
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import java.text.NumberFormat
@@ -30,10 +29,12 @@ class PointsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        // 2. Setup Header Poin (Real-time update)
+        // 2. Setup Header Poin
         val tvPoints = findViewById<TextView>(R.id.tv_total_points)
         val dao = QashDatabase.getDatabase(application).qashDao()
-        val factory = QashViewModel.QashViewModelFactory(dao)
+
+        // PANGGIL FACTORY LANGSUNG (Tanpa QashViewModel.)
+        val factory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
 
         viewModel.user.observe(this) { user ->
@@ -50,13 +51,12 @@ class PointsActivity : AppCompatActivity() {
         val adapter = PointsPagerAdapter(this)
         viewPager.adapter = adapter
 
-        // Hubungkan Tab dengan ViewPager
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = if (position == 0) "Penukaran" else "Riwayat"
         }.attach()
     }
 
-    // Inner Class Adapter untuk Paging
+    // Inner Class Adapter
     inner class PointsPagerAdapter(activity: AppCompatActivity) : FragmentStateAdapter(activity) {
         override fun getItemCount(): Int = 2
 

@@ -8,11 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.qash_finalproject.R
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.ui.TransactionAdapter
 import com.example.qash_finalproject.viewmodel.QashViewModel
-import com.example.qash_finalproject.viewmodel.QashViewModelFactory // Pastikan ini ter-import
+import com.example.qash_finalproject.viewmodel.QashViewModelFactory // Pastikan ter-import
 
 class PointsHistoryFragment : Fragment() {
 
@@ -29,22 +28,25 @@ class PointsHistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val rvHistory = view.findViewById<RecyclerView>(R.id.rv_history_points)
-
-        // Pastikan TransactionAdapter() sudah dibuat sebelumnya
         val adapter = TransactionAdapter()
         rvHistory.layoutManager = LinearLayoutManager(context)
         rvHistory.adapter = adapter
 
         // Setup ViewModel
         val dao = QashDatabase.getDatabase(requireContext()).qashDao()
+
+        // PANGGIL FACTORY LANGSUNG
         val factory = QashViewModelFactory(dao)
 
-        // Gunakan requireActivity() agar data sinkron dengan Activity induknya
         viewModel = ViewModelProvider(requireActivity(), factory)[QashViewModel::class.java]
 
         // Tampilkan Riwayat
         viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
             val pointTransactions = transactions.filter { it.type == "KELUAR" }
+
+            // JIKA 'submitList' MASIH MERAH:
+            // Pastikan TransactionAdapter kamu sudah menggunakan ListAdapter (seperti panduan sebelumnya).
+            // Jika belum, ganti baris ini dengan: adapter.setData(pointTransactions) atau sesuai fungsi di adaptermu.
             adapter.submitList(pointTransactions)
         }
     }
