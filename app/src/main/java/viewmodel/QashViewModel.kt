@@ -1,8 +1,10 @@
 package com.example.qash_finalproject.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.example.qash_finalproject.data.QashDao
 import com.example.qash_finalproject.data.Transaction
@@ -11,52 +13,64 @@ import kotlinx.coroutines.launch
 
 class QashViewModel(private val dao: QashDao) : ViewModel() {
 
-    val user: LiveData<User> = dao.getUser()
-    val allTransactions: LiveData<List<Transaction>> = dao.getAllTransactions()
+    private val _userId = MutableLiveData<Int>()
+    
+    val user: LiveData<User?> = _userId.switchMap { id ->
+        dao.getUserById(id)
+    }
 
-    fun checkInitialization(defaultName: String) {
+    val allTransactions: LiveData<List<Transaction>> = _userId.switchMap { id ->
+        dao.getAllTransactions(id)
+    }
+
+    fun setUserId(id: Int) {
+        _userId.value = id
+    }
+
+    fun updateProfile(newName: String, newPhone: String, newImage: String?) {
         viewModelScope.launch {
-            try {
-                dao.insertUser(User(id = 1, name = defaultName, balance = 0))
-            } catch (e: Exception) {
+            val id = _userId.value ?: return@launch
+            val currentUser = dao.getUserSync(id)
+            if (currentUser != null) {
+                val updatedUser = currentUser.copy(
+                    name = newName,
+                    phone = newPhone,
+                    profileImage = newImage
+                )
+                dao.updateUser(updatedUser)
             }
         }
     }
 
-    // UPDATE: Tambahkan parameter 'onComplete' di akhir
     fun addTransaction(type: String, amount: Long, description: String, onComplete: () -> Unit = {}) {
         viewModelScope.launch {
-            val currentUser = user.value
+            val id = _userId.value ?: return@launch
+            val currentUser = dao.getUserSync(id)
             if (currentUser != null) {
                 var newBalance = currentUser.balance
-                var newPoints = currentUser.points
 
                 if (type == "MASUK") {
                     newBalance += amount
                 } else {
                     if (newBalance >= amount) {
                         newBalance -= amount
-                        val pointsEarned = amount / 1000
-                        newPoints += pointsEarned
                     } else {
                         return@launch
                     }
                 }
 
-                // Update Saldo
-                val updatedUser = currentUser.copy(balance = newBalance, points = newPoints)
+                val updatedUser = currentUser.copy(balance = newBalance)
                 dao.updateUser(updatedUser)
 
-                // Simpan Transaksi
                 val newTransaction = Transaction(
+                    userId = id,
                     type = type,
                     amount = amount,
-                    note = description, // Pastikan ini 'note', bukan 'description'
+                    note = description,
                     date = System.currentTimeMillis()
                 )
                 dao.insertTransaction(newTransaction)
 
-                // PENTING: Panggil onComplete setelah selesai simpan
                 onComplete()
             }
         }

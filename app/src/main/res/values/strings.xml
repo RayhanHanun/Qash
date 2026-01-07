@@ -15,4 +15,39 @@
         <item>ATM BCA (Cardless)</item>
         <item>ATM BRI</item>
     </string-array>
+
+    <string-array name="pdam_regions">
+        <item>PDAM Jakarta (Aetra)</item>
+        <item>PDAM Jakarta (Palyja)</item>
+        <item>PDAM Bogor</item>
+        <item>PDAM Depok</item>
+        <item>PDAM Bekasi</item>
+        <item>PDAM Tangerang</item>
+        <item>PDAM Surabaya</item>
+    </string-array>
+
+    <string-array name="emoney_products">
+        <item>Mandiri e-Money</item>
+        <item>BCA Flazz</item>
+        <item>BNI TapCash</item>
+    </string-array>
+
+    <string-array name="pbb_regions">
+        <item>PBB DKI JAKARTA</item>
+        <item>PBB KOTA DEPOK</item>
+        <item>PBB KOTA BOGOR</item>
+        <item>PBB KAB. BOGOR</item>
+        <item>PBB KOTA BEKASI</item>
+        <item>PBB KOTA TANGERANG</item>
+        <item>PBB KOTA BANDUNG</item>
+        <item>PBB KOTA SURABAYA</item>
+    </string-array>
+
+    <string-array name="pbb_years">
+        <item>2025</item>
+        <item>2024</item>
+        <item>2023</item>
+        <item>2022</item>
+        <item>2021</item>
+    </string-array>
 </resources>

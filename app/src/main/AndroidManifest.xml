@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <uses-feature android:name="android.hardware.camera" />
 
@@ -15,15 +19,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Qash_FinalProject">
+
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.EditProfileActivity"
+            android:exported="false" />
         <activity
             android:name=".grid.PulsaActivity"
             android:exported="false" />
@@ -33,48 +48,37 @@
         <activity
             android:name=".grid.PdamActivity"
             android:exported="false" />
-
         <activity
             android:name=".grid.EmoneyActivity"
             android:exported="false" />
-
         <activity
             android:name=".grid.InternetActivity"
             android:exported="false" />
         <activity
             android:name=".grid.InternetPaymentActivity"
             android:exported="false" />
-
         <activity
             android:name=".grid.PbbActivity"
             android:exported="false" />
-
         <activity
             android:name=".PromoActivity"
             android:exported="false" />
-
-        <activity
-            android:name=".PointsActivity"
-            android:exported="false" />
-
         <activity
             android:name=".TopUpActivity"
             android:exported="false" />
-
         <activity
             android:name=".TransferActivity"
             android:exported="false" />
         <activity
             android:name=".WithdrawActivity"
             android:exported="false" />
-
         <activity
             android:name=".ScanActivity"
             android:exported="false" />
-
         <activity
             android:name=".TransferFormActivity"
             android:exported="false" />
+
     </application>
 
 </manifest>

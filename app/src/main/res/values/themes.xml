@@ -1,9 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Qash_FinalProject" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.Qash_FinalProject" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Menggunakan warna yang ada di colors.xml -->
+        <item name="colorPrimary">@color/qash_primary</item>
+        <item name="colorPrimaryVariant">@color/qash_primary</item>
+        <item name="colorSecondary">@color/qash_secondary</item>
     </style>
 
     <style name="Theme.Qash_FinalProject" parent="Base.Theme.Qash_FinalProject" />
+
+    <!-- Theme khusus Splash Screen -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#FFFFFF</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/qash_login</item>
+        <item name="postSplashScreenTheme">@style/Theme.Qash_FinalProject</item>
+    </style>
 </resources>

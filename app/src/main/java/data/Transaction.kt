@@ -6,10 +6,10 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "transaction_table")
 data class Transaction(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0, // ID otomatis nambah (1, 2, 3...)
-
+    val id: Int = 0,
+    val userId: Int, // Menghubungkan transaksi dengan User
     val type: String, // "IN" (Masuk) atau "OUT" (Keluar)
-    val amount: Long, // Jumlah uang
-    val note: String, // Keterangan (misal: "Beli Bakso")
-    val date: Long = System.currentTimeMillis() // Waktu transaksi (otomatis saat ini)
+    val amount: Long,
+    val note: String,
+    val date: Long = System.currentTimeMillis()
 )

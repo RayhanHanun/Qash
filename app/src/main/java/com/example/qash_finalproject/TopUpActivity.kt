@@ -2,6 +2,7 @@ package com.example.qash_finalproject
 
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,23 +15,26 @@ import com.google.android.material.textfield.TextInputEditText
 class TopUpActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_top_up)
 
+        sessionManager = SessionManager(this)
+        val userId = sessionManager.getUserId()
+
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
-
-        // PENTING: Observasi User agar data ter-load sebelum transaksi
-        viewModel.user.observe(this) {
-            // Data user siap digunakan
-        }
+        
+        // PENTING: Set userId ke ViewModel agar tahu siapa yang sedang top up
+        viewModel.setUserId(userId)
 
         val etAmount: TextInputEditText = findViewById(R.id.et_amount)
         val spinnerMethod: Spinner = findViewById(R.id.spinner_method)
         val btnSave: Button = findViewById(R.id.btn_save)
+        val btnBack = findViewById<ImageView>(R.id.btn_back)
 
         btnSave.setOnClickListener {
             val amountString = etAmount.text.toString()
@@ -48,14 +52,15 @@ class TopUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // PENTING: Gunakan Callback { finish() }
-            // Aplikasi hanya akan menutup layar SETELAH saldo berhasil tersimpan
             viewModel.addTransaction("MASUK", amount, "Top Up via $selectedMethod") {
                 runOnUiThread {
                     Toast.makeText(this, "Top Up Rp $amount Berhasil!", Toast.LENGTH_LONG).show()
                     finish()
                 }
             }
+        }
+        btnBack.setOnClickListener {
+            finish()
         }
     }
 }

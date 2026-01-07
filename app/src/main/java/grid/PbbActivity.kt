@@ -25,37 +25,23 @@ class PbbActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
 
-    // Data State
-    private var isBillShown = false // Apakah tagihan sedang ditampilkan?
+    private var isBillShown = false
     private var billAmount: Long = 0
     private var selectedRegion: String = ""
     private var selectedYear: String = ""
-
-    // Data Wilayah
-    private val regions = listOf(
-        "PBB DKI JAKARTA", "PBB KOTA DEPOK", "PBB KOTA BOGOR", "PBB KAB. BOGOR",
-        "PBB KOTA BEKASI", "PBB KOTA TANGERANG", "PBB KOTA BANDUNG", "PBB KOTA SURABAYA",
-        "PBB KOTA SEMARANG", "PBB KOTA YOGYAKARTA", "PBB KAB. SLEMAN"
-    )
-
-    // Data Tahun
-    private val years = listOf("2025", "2024", "2023", "2022", "2021")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pbb)
 
-        // Toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        // ViewModel
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
 
-        // Views
         val actRegion = findViewById<AutoCompleteTextView>(R.id.act_region)
         val actYear = findViewById<AutoCompleteTextView>(R.id.act_year)
         val etNop = findViewById<TextInputEditText>(R.id.et_nop)
@@ -66,14 +52,18 @@ class PbbActivity : AppCompatActivity() {
         val tvDetailRegion = findViewById<TextView>(R.id.tv_detail_region)
         val scrollView = findViewById<NestedScrollView>(R.id.scroll_view)
 
-        // 1. SETUP DROPDOWN (Region & Year)
+        // --- REVISI: LOAD DARI XML STRINGS ---
+        // 1. Array Wilayah
+        val regions = resources.getStringArray(R.array.pbb_regions)
         val adapterRegion = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, regions)
         actRegion.setAdapter(adapterRegion)
 
+        // 2. Array Tahun
+        val years = resources.getStringArray(R.array.pbb_years)
         val adapterYear = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, years)
         actYear.setAdapter(adapterYear)
+        // -------------------------------------
 
-        // Listener agar tombol kembali ke "Cek Tagihan" jika user mengubah input
         val resetStateListener = View.OnFocusChangeListener { _, _ ->
             if (isBillShown) {
                 isBillShown = false
@@ -85,7 +75,6 @@ class PbbActivity : AppCompatActivity() {
         etNop.onFocusChangeListener = resetStateListener
         actRegion.setOnItemClickListener { _, _, _, _ -> resetStateListener.onFocusChange(actRegion, true) }
 
-        // 2. LOGIKA TOMBOL AKSI (Multifungsi: Cek / Bayar)
         btnAction.setOnClickListener {
             selectedRegion = actRegion.text.toString()
             selectedYear = actYear.text.toString()
@@ -101,29 +90,24 @@ class PbbActivity : AppCompatActivity() {
             }
 
             if (!isBillShown) {
-                // --- MODE 1: CEK TAGIHAN ---
-                // Simulasi Loading & Get Data
+                // Mode Cek Tagihan
                 billAmount = (150000..900000).random().toLong()
-                billAmount = (billAmount / 1000) * 1000 // Bulatkan
+                billAmount = (billAmount / 1000) * 1000
 
                 val formatRp = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                 val textHarga = formatRp.format(billAmount).replace(",00", "")
 
-                // Tampilkan Detail
                 tvDetailRegion.text = selectedRegion
                 tvBillAmount.text = textHarga
                 tvTotalBottom.text = textHarga
                 cardDetail.visibility = View.VISIBLE
 
-                // Ubah Tombol jadi Bayar
                 btnAction.text = "Bayar Sekarang"
                 isBillShown = true
-
-                // Scroll ke bawah agar rincian terlihat
                 scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
 
             } else {
-                // --- MODE 2: BAYAR SEKARANG ---
+                // Mode Bayar
                 processPayment(nop)
             }
         }

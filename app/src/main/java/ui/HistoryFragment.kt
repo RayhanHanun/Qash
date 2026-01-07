@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.qash_finalproject.R
+import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -22,6 +23,7 @@ class HistoryFragment : Fragment() {
     private lateinit var viewModel: QashViewModel
     private lateinit var adapter: TransactionAdapter
     private lateinit var layoutEmpty: LinearLayout
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,31 +35,32 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        sessionManager = SessionManager(requireContext())
+        val userId = sessionManager.getUserId()
+
         // 1. Setup ViewModel
         val application = requireNotNull(this.activity).application
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
+        viewModel.setUserId(userId)
 
         // 2. Setup RecyclerView
         val rvHistory = view.findViewById<RecyclerView>(R.id.rv_history)
         layoutEmpty = view.findViewById(R.id.layout_empty)
 
-        // PERBAIKAN 1: Konstruktor ListAdapter tidak butuh parameter
         adapter = TransactionAdapter()
         rvHistory.adapter = adapter
         rvHistory.layoutManager = LinearLayoutManager(context)
 
         // 3. Observasi Data Real-time
         viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
-            if (transactions.isEmpty()) {
+            if (transactions == null || transactions.isEmpty()) {
                 rvHistory.visibility = View.GONE
                 layoutEmpty.visibility = View.VISIBLE
             } else {
                 rvHistory.visibility = View.VISIBLE
                 layoutEmpty.visibility = View.GONE
-
-                // PERBAIKAN 2: Gunakan submitList(), bukan setData()
                 adapter.submitList(transactions)
             }
         }
@@ -73,14 +76,11 @@ class HistoryFragment : Fragment() {
         })
     }
 
-    // Logika Filter Sederhana
     private fun filterList(query: String) {
         val fullList = viewModel.allTransactions.value ?: return
         val filteredList = fullList.filter {
             it.note.contains(query, ignoreCase = true)
         }
-
-        // PERBAIKAN 3: Gunakan submitList()
         adapter.submitList(filteredList)
     }
 }

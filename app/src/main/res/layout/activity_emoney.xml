@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_back"
-            app:title="Top Up E-Money"
+            app:title="Top Up e-Money"
             app:titleTextColor="@color/black" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -89,6 +89,15 @@
                         android:hint="Contoh: 08..."
                         android:textSize="18sp"/>
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="ℹ️ Pastikan nomor e-Money sudah benar."
+                    android:textSize="12sp"
+                    android:textColor="#9E9E9E"/>
+
             </LinearLayout>
 
             <View
@@ -163,7 +172,7 @@
                 android:id="@+id/btn_confirm_topup"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:text="Top Up"
+                android:text="Bayar Sekarang"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"

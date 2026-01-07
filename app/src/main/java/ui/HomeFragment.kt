@@ -16,20 +16,18 @@ import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.example.qash_finalproject.R
+import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.TopUpActivity
 import com.example.qash_finalproject.TransferActivity
 import com.example.qash_finalproject.WithdrawActivity
 import com.example.qash_finalproject.data.QashDatabase
-// --- IMPORT SEMUA ACTIVITY MENU GRID ---
 import com.example.qash_finalproject.grid.EmoneyActivity
 import com.example.qash_finalproject.grid.InternetActivity
 import com.example.qash_finalproject.grid.ListrikActivity
 import com.example.qash_finalproject.grid.PbbActivity
 import com.example.qash_finalproject.grid.PdamActivity
 import com.example.qash_finalproject.grid.PulsaActivity
-// --- IMPORT ACTIVITY PROMO ---
 import com.example.qash_finalproject.PromoActivity
-// ---------------------------------------
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
 import com.google.android.material.tabs.TabLayout
@@ -43,6 +41,7 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: QashViewModel
     private lateinit var tvBalance: TextView
     private lateinit var tvGreeting: TextView
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,25 +53,13 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Inisialisasi View & ViewModel
+        sessionManager = SessionManager(requireContext())
+        
         initViewModel(view)
-
-        // 2. Setup Header (Tombol Promo ada di sini)
         setupHeaderActions(view)
-
-        // 3. Setup Tombol Aksi Utama (TopUp, Transfer, Scan)
         setupMainButtons(view)
-
-        // 4. Setup Grid Menu (Pulsa, PBB, Internet, dll)
         setupGridMenu(view)
-
-        // 5. Setup Carousel Banner
         setupCarousel(view)
-
-        val btnPoints = view.findViewById<View>(R.id.btn_qash_points) // Pastikan ID ini sudah ditambahkan di XML
-        btnPoints?.setOnClickListener {
-            startActivity(Intent(activity, com.example.qash_finalproject.PointsActivity::class.java))
-        }
     }
 
     private fun initViewModel(view: View) {
@@ -84,21 +71,20 @@ class HomeFragment : Fragment() {
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
 
-        // Cek User Default & Observasi Saldo
-        viewModel.checkInitialization("Rayhan")
+        val userId = sessionManager.getUserId()
+        viewModel.setUserId(userId)
+
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
                 val formatRupiah = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                 tvBalance.text = formatRupiah.format(user.balance).replace(",00", "")
+                tvGreeting.text = "Halo, ${user.name}!"
             }
         }
     }
 
-    // --- LOGIKA TOMBOL PROMO (DI HEADER ATAS) ---
     private fun setupHeaderActions(view: View) {
-        // ID ini harus sesuai dengan yang ada di fragment_home.xml (btn_top_promo)
         val btnTopPromo = view.findViewById<LinearLayout>(R.id.btn_top_promo)
-
         btnTopPromo?.setOnClickListener {
             startActivity(Intent(activity, PromoActivity::class.java))
         }
@@ -130,43 +116,32 @@ class HomeFragment : Fragment() {
                 val itemContainer = gridLayout.getChildAt(i) as? LinearLayout
 
                 itemContainer?.setOnClickListener {
-                    // Ambil teks menu dari TextView (anak ke-2 di dalam linear layout item)
                     val tvMenu = itemContainer.getChildAt(1) as? TextView
                     val menuNameRaw = tvMenu?.text.toString()
                     val menuName = menuNameRaw.replace("\n", " ").trim()
 
-                    // Navigasi berdasarkan nama menu
                     when {
-                        // Pulsa
                         menuName.contains("Pulsa", ignoreCase = true) -> {
                             startActivity(Intent(activity, PulsaActivity::class.java))
                         }
-                        // Listrik
                         menuName.contains("Listrik", ignoreCase = true) || menuName.contains("PLN", ignoreCase = true) -> {
                             startActivity(Intent(activity, ListrikActivity::class.java))
                         }
-                        // PDAM
                         menuName.contains("Air", ignoreCase = true) || menuName.contains("PDAM", ignoreCase = true) -> {
                             startActivity(Intent(activity, PdamActivity::class.java))
                         }
-                        // E-Money
                         menuName.contains("Money", ignoreCase = true) || menuName.contains("Dompet", ignoreCase = true) -> {
                             startActivity(Intent(activity, EmoneyActivity::class.java))
                         }
-                        // Internet & TV Kabel
                         menuName.contains("Internet", ignoreCase = true) || menuName.contains("TV", ignoreCase = true) -> {
                             startActivity(Intent(activity, InternetActivity::class.java))
                         }
-                        // PBB (Pajak)
                         menuName.contains("PBB", ignoreCase = true) || menuName.contains("Pajak", ignoreCase = true) -> {
                             startActivity(Intent(activity, PbbActivity::class.java))
                         }
-
-                        // Menu Lainnya (Placeholder)
                         menuName.contains("BPJS", ignoreCase = true) -> showToast("Fitur BPJS dalam pengembangan.")
                         menuName.contains("Game", ignoreCase = true) -> showToast("Voucher Game coming soon!")
                         menuName.contains("Lainnya", ignoreCase = true) -> showToast("Lihat semua layanan...")
-
                         else -> showToast("Menu $menuName belum tersedia")
                     }
                 }
@@ -188,7 +163,6 @@ class HomeFragment : Fragment() {
             val promoAdapter = PromoAdapter(promoImages)
             vpPromo.adapter = promoAdapter
 
-            // Efek Zoom-Out
             vpPromo.clipToPadding = false
             vpPromo.clipChildren = false
             vpPromo.offscreenPageLimit = 3
@@ -202,7 +176,6 @@ class HomeFragment : Fragment() {
             }
             vpPromo.setPageTransformer(compositePageTransformer)
 
-            // Indikator (Titik-titik)
             if (tabLayout != null) {
                 TabLayoutMediator(tabLayout, vpPromo) { _, _ -> }.attach()
             }

@@ -1,7 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Qash_FinalProject" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <!-- Base application theme untuk Mode Malam. -->
+    <style name="Base.Theme.Qash_FinalProject" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Gunakan warna yang tersedia -->
+        <item name="colorPrimary">@color/qash_primary</item>
+        <item name="colorPrimaryVariant">@color/qash_primary</item>
+        <item name="colorSecondary">@color/qash_secondary</item>
     </style>
 </resources>

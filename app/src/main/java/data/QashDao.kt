@@ -11,27 +11,32 @@ interface QashDao {
 
     // --- USER / SALDO ---
     @Insert
-    suspend fun insertUser(user: User)
+    suspend fun insertUser(user: User): Long
 
     @Update
     suspend fun updateUser(user: User)
 
-    @Query("SELECT * FROM user_table WHERE id = 1")
-    fun getUser(): LiveData<User> // Untuk UI (HomeFragment) agar update otomatis
+    @Query("SELECT * FROM user_table WHERE id = :userId")
+    fun getUserById(userId: Int): LiveData<User?>
 
-    // FUNGSI BARU: Ambil data User secara langsung (Synchronous) untuk Logic
-    @Query("SELECT * FROM user_table WHERE id = 1")
-    suspend fun getUserSync(): User?
+    @Query("SELECT * FROM user_table WHERE id = :userId")
+    suspend fun getUserSync(userId: Int): User?
+
+    @Query("SELECT * FROM user_table WHERE email = :email LIMIT 1")
+    suspend fun getUserByEmail(email: String): User?
+
+    @Query("SELECT * FROM user_table WHERE email = :email AND password = :password LIMIT 1")
+    suspend fun login(email: String, password: String): User?
 
     // --- TRANSAKSI ---
     @Insert
     suspend fun insertTransaction(transaction: Transaction)
 
-    @Query("SELECT * FROM transaction_table ORDER BY date DESC")
-    fun getAllTransactions(): LiveData<List<Transaction>>
+    @Query("SELECT * FROM transaction_table WHERE userId = :userId ORDER BY date DESC")
+    fun getAllTransactions(userId: Int): LiveData<List<Transaction>>
 
-    @Query("SELECT * FROM transaction_table WHERE note LIKE '%' || :searchQuery || '%' ORDER BY date DESC")
-    fun searchTransactions(searchQuery: String): LiveData<List<Transaction>>
+    @Query("SELECT * FROM transaction_table WHERE userId = :userId AND note LIKE '%' || :searchQuery || '%' ORDER BY date DESC")
+    fun searchTransactions(userId: Int, searchQuery: String): LiveData<List<Transaction>>
 
     @Query("DELETE FROM transaction_table")
     suspend fun clearAllTransactions()

@@ -63,13 +63,22 @@
                     android:hint="Contoh: 0812..."
                     android:textSize="18sp"/>
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="ℹ️ Pastikan nomor ponsel sudah benar."
+                android:textSize="12sp"
+                android:textColor="#9E9E9E"/>
+
         </LinearLayout>
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tab_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
+                android:background="@color/white"
                 app:tabIndicatorColor="@color/qash_primary"
                 app:tabSelectedTextColor="@color/qash_primary"
                 app:tabTextColor="#757575"
@@ -172,7 +181,7 @@
                 android:id="@+id/btn_confirm_pulsa"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:text="Beli"
+                android:text="Bayar Sekarang"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"

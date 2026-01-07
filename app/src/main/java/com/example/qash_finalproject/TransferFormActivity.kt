@@ -19,17 +19,19 @@ import java.util.Locale
 class TransferFormActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
+    private lateinit var sessionManager: SessionManager
     private var currentBalance: Long = 0
-    private var transferType: String = "SESAMA" // Default
+    private var transferType: String = "SESAMA"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_transfer_form)
 
-        // 1. Ambil Data Intent (Jenis Transfer)
+        sessionManager = SessionManager(this)
+        val userId = sessionManager.getUserId()
+
         transferType = intent.getStringExtra("TRANSFER_TYPE") ?: "SESAMA"
 
-        // 2. Setup UI sesuai Tipe
         val tvTitle: TextView = findViewById(R.id.tv_title)
         val lblTujuan: TextView = findViewById(R.id.lbl_tujuan)
         val etReceiver: EditText = findViewById(R.id.et_receiver)
@@ -45,10 +47,10 @@ class TransferFormActivity : AppCompatActivity() {
             etReceiver.hint = "Masukkan nomor ponsel"
         }
 
-        // 3. Setup ViewModel & Saldo
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
+        viewModel.setUserId(userId)
 
         val tvCurrentBalance: TextView = findViewById(R.id.tv_current_balance)
         viewModel.user.observe(this) { user ->
@@ -59,7 +61,6 @@ class TransferFormActivity : AppCompatActivity() {
             }
         }
 
-        // 4. Logika Input & Tombol
         val etAmount: EditText = findViewById(R.id.et_amount)
         val etNote: EditText = findViewById(R.id.et_note)
         val btnContinue: Button = findViewById(R.id.btn_continue)
@@ -67,7 +68,6 @@ class TransferFormActivity : AppCompatActivity() {
 
         btnBack.setOnClickListener { finish() }
 
-        // Validasi Input Real-time (Agar tombol berubah warna)
         val textWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val amount = etAmount.text.toString().toLongOrNull() ?: 0
@@ -87,7 +87,6 @@ class TransferFormActivity : AppCompatActivity() {
         etAmount.addTextChangedListener(textWatcher)
         etReceiver.addTextChangedListener(textWatcher)
 
-        // 5. Eksekusi Transfer
         btnContinue.setOnClickListener {
             val amount = etAmount.text.toString().toLongOrNull() ?: 0
             val receiver = etReceiver.text.toString()
@@ -106,10 +105,12 @@ class TransferFormActivity : AppCompatActivity() {
             val desc = if (transferType == "BANK") "Transfer Bank ke $receiver" else "Kirim ke $receiver"
             val finalNote = if (note.isNotEmpty()) "$desc ($note)" else desc
 
-            viewModel.addTransaction("KELUAR", amount, finalNote)
-            Toast.makeText(this, "Transfer Berhasil!", Toast.LENGTH_LONG).show()
-            finish() // Tutup form
-            // Opsional: bisa finish() TransferActivity induk juga kalau mau langsung ke Home
+            viewModel.addTransaction("KELUAR", amount, finalNote) {
+                runOnUiThread {
+                    Toast.makeText(this, "Transfer Berhasil!", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+            }
         }
     }
 }

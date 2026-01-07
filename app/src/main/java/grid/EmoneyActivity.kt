@@ -27,7 +27,7 @@ import com.google.android.material.textfield.TextInputEditText
 import java.text.NumberFormat
 import java.util.Locale
 
-// 1. Data Model untuk Provider (Nama + Gambar)
+// Model Data
 data class EmoneyProvider(val name: String, val imageResId: Int)
 
 class EmoneyActivity : AppCompatActivity() {
@@ -38,14 +38,6 @@ class EmoneyActivity : AppCompatActivity() {
     private var selectedProvider: String = ""
     private var selectedAmount: Long = 0
     private var activeNominalCard: MaterialCardView? = null
-
-    // 2. Data Provider dengan Gambar
-    // PENTING: Ganti R.drawable.ic_emoney dengan gambar kartu asli kamu (misal: R.drawable.card_mandiri)
-    private val providers = listOf(
-        EmoneyProvider("Mandiri e-Money", R.drawable.mandiri),
-        EmoneyProvider("BCA Flazz", R.drawable.bca),
-        EmoneyProvider("BNI TapCash", R.drawable.bni),
-    )
 
     private val nominals = listOf(10000L, 20000L, 25000L, 50000L, 100000L, 200000L)
 
@@ -61,20 +53,31 @@ class EmoneyActivity : AppCompatActivity() {
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
 
-        // Init Views
         val spinnerProvider = findViewById<Spinner>(R.id.spinner_provider)
         val gridNominal = findViewById<GridLayout>(R.id.grid_nominal)
         val etNumber = findViewById<TextInputEditText>(R.id.et_customer_number)
         val btnConfirm = findViewById<Button>(R.id.btn_confirm_topup)
         val tvPrice = findViewById<TextView>(R.id.tv_selected_price)
 
-        // 3. SETUP CUSTOM ADAPTER UNTUK SPINNER
+        // --- REVISI: LOAD DATA DARI XML & MAPPING GAMBAR ---
+        val stringArray = resources.getStringArray(R.array.emoney_products)
+        val providers = stringArray.map { name ->
+            val image = when {
+                name.contains("Mandiri", true) -> R.drawable.mandiri
+                name.contains("BCA", true) -> R.drawable.bca
+                name.contains("BNI", true) -> R.drawable.bni
+                else -> R.drawable.ic_emoney // Default icon jika tidak ada logo khusus
+            }
+            EmoneyProvider(name, image)
+        }
+        // ----------------------------------------------------
+
+        // Setup Adapter
         val adapter = ProviderAdapter(this, providers)
         spinnerProvider.adapter = adapter
 
         spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // Ambil objek EmoneyProvider yang dipilih
                 val selectedItem = providers[position]
                 selectedProvider = selectedItem.name
                 updateButtonState(btnConfirm)
@@ -82,7 +85,7 @@ class EmoneyActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        // Generate Nominal Cards
+        // Generate Grid
         nominals.forEach { amount ->
             val card = createNominalCard(amount)
             card.setOnClickListener {
@@ -92,7 +95,6 @@ class EmoneyActivity : AppCompatActivity() {
             gridNominal.addView(card)
         }
 
-        // Tombol Confirm
         btnConfirm.setOnClickListener {
             val number = etNumber.text.toString()
             if (number.length < 8) {
@@ -103,50 +105,35 @@ class EmoneyActivity : AppCompatActivity() {
         }
     }
 
-    // --- CUSTOM ADAPTER CLASS (SUDAH DIPERBAIKI) ---
+    // --- Adapter Custom Tetap Dipertahankan (Biar UI Bagus) ---
     inner class ProviderAdapter(context: Context, private val items: List<EmoneyProvider>) :
         ArrayAdapter<EmoneyProvider>(context, 0, items) {
 
-        // Ini tampilan saat Spinner TERTUTUP (Selected Item)
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            // isDropdown = false (Munculkan Panah)
             return createItemView(position, convertView, parent, isDropdown = false)
         }
 
-        // Ini tampilan saat Spinner TERBUKA (List Pilihan)
         override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-            // isDropdown = true (Sembunyikan Panah)
             return createItemView(position, convertView, parent, isDropdown = true)
         }
 
-        // Fungsi helper dengan parameter tambahan 'isDropdown'
         private fun createItemView(position: Int, convertView: View?, parent: ViewGroup, isDropdown: Boolean): View {
             val view = convertView ?: LayoutInflater.from(context).inflate(
                 R.layout.item_provider_spinner, parent, false
             )
-
             val item = items[position]
             val imgLogo = view.findViewById<ImageView>(R.id.img_provider_logo)
             val tvName = view.findViewById<TextView>(R.id.tv_provider_name)
-            val imgArrow = view.findViewById<ImageView>(R.id.img_arrow) // Ambil ID Panah
+            val imgArrow = view.findViewById<ImageView>(R.id.img_arrow)
 
             imgLogo.setImageResource(item.imageResId)
             tvName.text = item.name
 
-            // --- LOGIKA SEMBUNYIKAN PANAH ---
-            if (isDropdown) {
-                // Jika sedang membuka list, panah DIHILANGKAN
-                imgArrow.visibility = View.GONE
-            } else {
-                // Jika tampilan utama (terpilih), panah DITAMPILKAN
-                imgArrow.visibility = View.VISIBLE
-            }
-
+            if (isDropdown) imgArrow.visibility = View.GONE else imgArrow.visibility = View.VISIBLE
             return view
         }
     }
 
-    // --- LOGIKA LAINNYA (SAMA SEPERTI SEBELUMNYA) ---
     private fun handleNominalSelection(card: MaterialCardView, amount: Long, tvPrice: TextView) {
         val blueColor = ContextCompat.getColor(this, R.color.qash_primary)
         val formatRp = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
@@ -160,7 +147,6 @@ class EmoneyActivity : AppCompatActivity() {
             activeNominalCard?.strokeWidth = 0
             activeNominalCard = card
             selectedAmount = amount
-
             card.strokeWidth = 6
             card.strokeColor = blueColor
             tvPrice.text = formatRp.format(amount).replace(",00", "")
@@ -183,7 +169,6 @@ class EmoneyActivity : AppCompatActivity() {
         card.radius = 24f
         card.cardElevation = 4f
         card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white))
-
         val outValue = TypedValue()
         theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
         card.foreground = ContextCompat.getDrawable(this, outValue.resourceId)
