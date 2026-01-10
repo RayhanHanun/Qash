@@ -5,10 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridLayout
-import android.widget.LinearLayout
+import android.widget.GridLayout // <--- PASTIKAN INI YANG DIIMPORT
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -21,13 +19,14 @@ import com.example.qash_finalproject.TopUpActivity
 import com.example.qash_finalproject.TransferActivity
 import com.example.qash_finalproject.WithdrawActivity
 import com.example.qash_finalproject.data.QashDatabase
+import com.example.qash_finalproject.grid.BpjsActivity
+import com.example.qash_finalproject.grid.DonasiActivity
 import com.example.qash_finalproject.grid.EmoneyActivity
 import com.example.qash_finalproject.grid.InternetActivity
 import com.example.qash_finalproject.grid.ListrikActivity
 import com.example.qash_finalproject.grid.PbbActivity
 import com.example.qash_finalproject.grid.PdamActivity
 import com.example.qash_finalproject.grid.PulsaActivity
-import com.example.qash_finalproject.PromoActivity
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
 import com.google.android.material.tabs.TabLayout
@@ -39,150 +38,121 @@ import kotlin.math.abs
 class HomeFragment : Fragment() {
 
     private lateinit var viewModel: QashViewModel
-    private lateinit var tvBalance: TextView
-    private lateinit var tvGreeting: TextView
     private lateinit var sessionManager: SessionManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Init ViewModel & Session
         sessionManager = SessionManager(requireContext())
-        
-        initViewModel(view)
-        setupHeaderActions(view)
-        setupMainButtons(view)
-        setupGridMenu(view)
-        setupCarousel(view)
-    }
+        val dao = QashDatabase.getDatabase(requireContext()).qashDao()
+        val factory = QashViewModelFactory(dao)
+        viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
+        viewModel.setUserId(sessionManager.getUserId())
 
-    private fun initViewModel(view: View) {
-        tvBalance = view.findViewById(R.id.tv_balance)
-        tvGreeting = view.findViewById(R.id.tv_greeting)
-
-        val application = requireNotNull(this.activity).application
-        val dao = QashDatabase.getDatabase(application).qashDao()
-        val viewModelFactory = QashViewModelFactory(dao)
-        viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
-
-        val userId = sessionManager.getUserId()
-        viewModel.setUserId(userId)
+        // --- SETUP SALDO USER ---
+        val tvGreeting = view.findViewById<TextView>(R.id.tv_greeting)
+        val tvBalance = view.findViewById<TextView>(R.id.tv_balance)
 
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
-                val formatRupiah = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-                tvBalance.text = formatRupiah.format(user.balance).replace(",00", "")
-                tvGreeting.text = "Halo, ${user.name}!"
+                tvGreeting.text = "Qash • ${user.name}"
+                val formatRp = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
+                tvBalance.text = formatRp.format(user.balance).replace(",00", "")
             }
         }
+
+        // --- SETUP MENU UTAMA (TopUp, Transfer, dll) ---
+        view.findViewById<View>(R.id.btn_topup).setOnClickListener {
+            startActivity(Intent(context, TopUpActivity::class.java))
+        }
+        view.findViewById<View>(R.id.btn_transfer).setOnClickListener {
+            startActivity(Intent(context, TransferActivity::class.java))
+        }
+        view.findViewById<View>(R.id.btn_scan).setOnClickListener {
+            startActivity(Intent(context, WithdrawActivity::class.java))
+        }
+
+        // --- SETUP MENU GRID (Pulsa, BPJS, dll) ---
+        // Kita menggunakan helper getChildAt untuk mengambil item dari GridLayout
+
+        // 1. Pulsa & Data (Index 0)
+        getChildAt(view, 0).setOnClickListener {
+            startActivity(Intent(context, PulsaActivity::class.java))
+        }
+        // 2. E-Money (Index 1)
+        getChildAt(view, 1).setOnClickListener {
+            startActivity(Intent(context, EmoneyActivity::class.java))
+        }
+        // 3. Internet (Index 2)
+        getChildAt(view, 2).setOnClickListener {
+            startActivity(Intent(context, InternetActivity::class.java))
+        }
+        // 4. PBB (Index 3)
+        getChildAt(view, 3).setOnClickListener {
+            startActivity(Intent(context, PbbActivity::class.java))
+        }
+        // 5. Listrik (Index 4)
+        getChildAt(view, 4).setOnClickListener {
+            startActivity(Intent(context, ListrikActivity::class.java))
+        }
+        // 6. PDAM (Index 5)
+        getChildAt(view, 5).setOnClickListener {
+            startActivity(Intent(context, PdamActivity::class.java))
+        }
+        // 7. BPJS (NEW) - Menggunakan ID spesifik
+        view.findViewById<View>(R.id.btn_menu_bpjs).setOnClickListener {
+            startActivity(Intent(context, BpjsActivity::class.java))
+        }
+        // 8. Donasi (NEW) - Menggunakan ID spesifik
+        view.findViewById<View>(R.id.btn_menu_donasi).setOnClickListener {
+            startActivity(Intent(context, DonasiActivity::class.java))
+        }
+
+        // --- SETUP PROMO SLIDER ---
+        setupPromoSlider(view)
     }
 
-    private fun setupHeaderActions(view: View) {
-        val btnTopPromo = view.findViewById<LinearLayout>(R.id.btn_top_promo)
-        btnTopPromo?.setOnClickListener {
-            startActivity(Intent(activity, PromoActivity::class.java))
-        }
+    // --- PERBAIKAN DI SINI: Gunakan android.widget.GridLayout ---
+    private fun getChildAt(view: View, index: Int): View {
+        val grid = view.findViewById<GridLayout>(R.id.grid_menu) // GridLayout biasa
+        return grid.getChildAt(index)
     }
 
-    private fun setupMainButtons(view: View) {
-        val btnTopUp = view.findViewById<LinearLayout>(R.id.btn_topup)
-        val btnTransfer = view.findViewById<LinearLayout>(R.id.btn_transfer)
-        val btnScan = view.findViewById<LinearLayout>(R.id.btn_scan)
-
-        btnTopUp?.setOnClickListener {
-            startActivity(Intent(activity, TopUpActivity::class.java))
-        }
-
-        btnTransfer?.setOnClickListener {
-            startActivity(Intent(activity, TransferActivity::class.java))
-        }
-
-        btnScan?.setOnClickListener {
-            startActivity(Intent(activity, WithdrawActivity::class.java))
-        }
-    }
-
-    private fun setupGridMenu(view: View) {
-        val gridLayout = view.findViewById<GridLayout>(R.id.grid_menu)
-
-        if (gridLayout != null) {
-            for (i in 0 until gridLayout.childCount) {
-                val itemContainer = gridLayout.getChildAt(i) as? LinearLayout
-
-                itemContainer?.setOnClickListener {
-                    val tvMenu = itemContainer.getChildAt(1) as? TextView
-                    val menuNameRaw = tvMenu?.text.toString()
-                    val menuName = menuNameRaw.replace("\n", " ").trim()
-
-                    when {
-                        menuName.contains("Pulsa", ignoreCase = true) -> {
-                            startActivity(Intent(activity, PulsaActivity::class.java))
-                        }
-                        menuName.contains("Listrik", ignoreCase = true) || menuName.contains("PLN", ignoreCase = true) -> {
-                            startActivity(Intent(activity, ListrikActivity::class.java))
-                        }
-                        menuName.contains("Air", ignoreCase = true) || menuName.contains("PDAM", ignoreCase = true) -> {
-                            startActivity(Intent(activity, PdamActivity::class.java))
-                        }
-                        menuName.contains("Money", ignoreCase = true) || menuName.contains("Dompet", ignoreCase = true) -> {
-                            startActivity(Intent(activity, EmoneyActivity::class.java))
-                        }
-                        menuName.contains("Internet", ignoreCase = true) || menuName.contains("TV", ignoreCase = true) -> {
-                            startActivity(Intent(activity, InternetActivity::class.java))
-                        }
-                        menuName.contains("PBB", ignoreCase = true) || menuName.contains("Pajak", ignoreCase = true) -> {
-                            startActivity(Intent(activity, PbbActivity::class.java))
-                        }
-                        menuName.contains("BPJS", ignoreCase = true) -> showToast("Fitur BPJS dalam pengembangan.")
-                        menuName.contains("Game", ignoreCase = true) -> showToast("Voucher Game coming soon!")
-                        menuName.contains("Lainnya", ignoreCase = true) -> showToast("Lihat semua layanan...")
-                        else -> showToast("Menu $menuName belum tersedia")
-                    }
-                }
-            }
-        }
-    }
-
-    private fun setupCarousel(view: View) {
-        val vpPromo = view.findViewById<ViewPager2>(R.id.vp_promo)
+    private fun setupPromoSlider(view: View) {
+        val viewPager = view.findViewById<ViewPager2>(R.id.vp_promo)
         val tabLayout = view.findViewById<TabLayout>(R.id.tab_layout_indicator)
 
-        if (vpPromo != null) {
-            val promoImages = listOf(
-                R.drawable.promo1,
-                R.drawable.promo2,
-                R.drawable.promo3
-            )
+        val promoImages = listOf(
+            R.drawable.promo1,
+            R.drawable.promo2,
+            R.drawable.promo3
+        )
 
-            val promoAdapter = PromoAdapter(promoImages)
-            vpPromo.adapter = promoAdapter
+        val adapter = PromoAdapter(promoImages)
+        viewPager.adapter = adapter
 
-            vpPromo.clipToPadding = false
-            vpPromo.clipChildren = false
-            vpPromo.offscreenPageLimit = 3
-            vpPromo.getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+        // Efek Carousel
+        viewPager.offscreenPageLimit = 3
+        viewPager.clipToPadding = false
+        viewPager.clipChildren = false
+        viewPager.getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
 
-            val compositePageTransformer = CompositePageTransformer()
-            compositePageTransformer.addTransformer(MarginPageTransformer(30))
-            compositePageTransformer.addTransformer { page, position ->
-                val r = 1 - abs(position)
-                page.scaleY = 0.85f + r * 0.15f
-            }
-            vpPromo.setPageTransformer(compositePageTransformer)
-
-            if (tabLayout != null) {
-                TabLayoutMediator(tabLayout, vpPromo) { _, _ -> }.attach()
-            }
+        val transformer = CompositePageTransformer()
+        transformer.addTransformer(MarginPageTransformer(40))
+        transformer.addTransformer { page, position ->
+            val r = 1 - abs(position)
+            page.scaleY = 0.85f + r * 0.15f
         }
-    }
+        viewPager.setPageTransformer(transformer)
 
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        TabLayoutMediator(tabLayout, viewPager) { _, _ -> }.attach()
     }
 }

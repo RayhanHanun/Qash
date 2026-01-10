@@ -58,4 +58,12 @@
         <item>2022</item>
         <item>2021</item>
     </string-array>
+
+    <string-array name="bpjs_payment_periods">
+        <item>1 Bulan</item>
+        <item>3 Bulan</item>
+        <item>6 Bulan</item>
+        <item>1 Tahun</item>
+    </string-array>
+
 </resources>

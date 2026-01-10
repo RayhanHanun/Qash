@@ -19,17 +19,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Qash_FinalProject">
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
@@ -78,7 +77,12 @@
         <activity
             android:name=".TransferFormActivity"
             android:exported="false" />
-
+        <activity
+            android:name=".grid.DonasiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".grid.BpjsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
