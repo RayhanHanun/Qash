@@ -34,10 +34,14 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    // --- PERBAIKAN POIN 1: ViewBinding Aktif ---
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -46,23 +50,23 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    // 1. ROOM DATABASE (Wajib untuk Jalur A)
+
+    // Room Database
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
-    ksp("androidx.room:room-compiler:$room_version") // Kalau error 'ksp', ganti 'kapt'
+    ksp("androidx.room:room-compiler:$room_version")
 
-    // 2. QR CODE SCANNER (Untuk Fitur Andalan)
+    // QR Code Scanner
     implementation("com.github.yuriy-budiyev:code-scanner:2.3.2")
 
-    // 3. NAVIGATION COMPONENT (Untuk Bottom Nav)
+    // Navigation
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
 
-    // 4. LIFECYCLE (Agar App tidak crash saat diputar/tutup)
+    // Lifecycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
-    
     implementation("androidx.core:core-splashscreen:1.0.1")
 }

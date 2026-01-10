@@ -12,12 +12,13 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="40dp"
-        android:src="@drawable/qash_logo" />
+        android:src="@drawable/qash_logo"
+        android:contentDescription="@string/app_name"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Selamat Datang di Qash"
+        android:text="@string/login_welcome"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/qash_primary"
@@ -26,7 +27,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Masuk ke akun Anda"
+        android:text="@string/login_subtitle"
         android:textSize="16sp"
         android:textColor="#757575"
         android:layout_marginBottom="32dp"/>
@@ -35,7 +36,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Email"
+        android:hint="@string/hint_email"
         app:startIconDrawable="@android:drawable/ic_dialog_email">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -50,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Password"
+        android:hint="@string/hint_password"
         app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
         app:passwordToggleEnabled="true">
 
@@ -66,7 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="32dp"
-        android:text="Masuk"
+        android:text="@string/btn_login"
         android:backgroundTint="@color/qash_primary"
         android:textAllCaps="false"
         android:textSize="16sp" />
@@ -80,14 +81,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Belum punya akun? "
+            android:text="@string/text_no_account"
             android:textColor="#757575"/>
 
         <TextView
             android:id="@+id/tv_register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Daftar Sekarang"
+            android:text="@string/text_register_now"
             android:textColor="@color/qash_primary"
             android:textStyle="bold"
             android:clickable="true"

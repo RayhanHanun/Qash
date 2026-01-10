@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.R
+import com.example.qash_finalproject.SessionManager // Import
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -24,6 +25,7 @@ import java.util.Locale
 class ListrikActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
+    private lateinit var sessionManager: SessionManager // Tambahan
     private var selectedAmount: Long = 0
     private var isTagihanTab = false
     private var activeCard: MaterialCardView? = null
@@ -34,15 +36,20 @@ class ListrikActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_listrik)
 
-        // Toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        // ViewModel
+        // --- INIT SESSION ---
+        sessionManager = SessionManager(this)
+
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
+
+        // --- SOLUSI: SET USER ID ---
+        viewModel.setUserId(sessionManager.getUserId())
+        // ---------------------------
 
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
         val layoutToken = findViewById<View>(R.id.layout_token_container)
@@ -54,7 +61,6 @@ class ListrikActivity : AppCompatActivity() {
         val tvLayanan = findViewById<TextView>(R.id.tv_layanan)
         val tvBillAmount = findViewById<TextView>(R.id.tv_bill_amount)
 
-        // Generate Token Cards (Like Pulsa)
         tokenNominals.forEach { amount ->
             val cardView = createTokenCard(amount)
             cardView.setOnClickListener {
@@ -63,7 +69,6 @@ class ListrikActivity : AppCompatActivity() {
             gridToken.addView(cardView)
         }
 
-        // Logic Tab Switch
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 resetSelection(btnAction, tvTotalPayment)
@@ -105,6 +110,10 @@ class ListrikActivity : AppCompatActivity() {
             } else {
                 processPayment(selectedAmount, "Token PLN $idPln")
             }
+        }
+
+        viewModel.errorMessage.observe(this) { msg ->
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -173,15 +182,11 @@ class ListrikActivity : AppCompatActivity() {
     }
 
     private fun processPayment(amount: Long, desc: String) {
-        viewModel.user.observe(this) { user ->
-            if (user != null && user.balance >= amount) {
-                viewModel.addTransaction("KELUAR", amount, desc)
+        viewModel.addTransaction("KELUAR", amount, desc) {
+            runOnUiThread {
                 Toast.makeText(this, "Transaksi Berhasil!", Toast.LENGTH_LONG).show()
                 finish()
-            } else {
-                Toast.makeText(this, "Saldo kurang!", Toast.LENGTH_SHORT).show()
             }
-            viewModel.user.removeObservers(this)
         }
     }
 

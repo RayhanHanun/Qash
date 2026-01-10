@@ -19,6 +19,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.R
+import com.example.qash_finalproject.SessionManager // --- IMPORT PENTING ---
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -33,6 +34,7 @@ data class EmoneyProvider(val name: String, val imageResId: Int)
 class EmoneyActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
+    private lateinit var sessionManager: SessionManager // Tambahan
 
     // State
     private var selectedProvider: String = ""
@@ -49,9 +51,17 @@ class EmoneyActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
+        // --- 1. SETUP SESSION ---
+        sessionManager = SessionManager(this)
+
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
+
+        // --- 2. SET USER ID AGAR TRANSAKSI JALAN ---
+        val userId = sessionManager.getUserId()
+        viewModel.setUserId(userId)
+        // ------------------------------------------
 
         val spinnerProvider = findViewById<Spinner>(R.id.spinner_provider)
         val gridNominal = findViewById<GridLayout>(R.id.grid_nominal)
@@ -59,18 +69,17 @@ class EmoneyActivity : AppCompatActivity() {
         val btnConfirm = findViewById<Button>(R.id.btn_confirm_topup)
         val tvPrice = findViewById<TextView>(R.id.tv_selected_price)
 
-        // --- REVISI: LOAD DATA DARI XML & MAPPING GAMBAR ---
+        // Load Data Provider
         val stringArray = resources.getStringArray(R.array.emoney_products)
         val providers = stringArray.map { name ->
             val image = when {
                 name.contains("Mandiri", true) -> R.drawable.mandiri
                 name.contains("BCA", true) -> R.drawable.bca
                 name.contains("BNI", true) -> R.drawable.bni
-                else -> R.drawable.ic_emoney // Default icon jika tidak ada logo khusus
+                else -> R.drawable.ic_emoney
             }
             EmoneyProvider(name, image)
         }
-        // ----------------------------------------------------
 
         // Setup Adapter
         val adapter = ProviderAdapter(this, providers)
@@ -103,9 +112,13 @@ class EmoneyActivity : AppCompatActivity() {
             }
             processTransaction(selectedAmount, number, selectedProvider)
         }
+
+        // Feedback Error
+        viewModel.errorMessage.observe(this) { msg ->
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        }
     }
 
-    // --- Adapter Custom Tetap Dipertahankan (Biar UI Bagus) ---
     inner class ProviderAdapter(context: Context, private val items: List<EmoneyProvider>) :
         ArrayAdapter<EmoneyProvider>(context, 0, items) {
 
@@ -187,16 +200,11 @@ class EmoneyActivity : AppCompatActivity() {
     }
 
     private fun processTransaction(amount: Long, number: String, provider: String) {
-        viewModel.user.observe(this) { user ->
-            if (user != null) {
-                if (user.balance >= amount) {
-                    viewModel.addTransaction("KELUAR", amount, "Top Up $provider - $number")
-                    Toast.makeText(this, "Top Up Berhasil!", Toast.LENGTH_LONG).show()
-                    finish()
-                } else {
-                    Toast.makeText(this, "Saldo tidak cukup!", Toast.LENGTH_SHORT).show()
-                }
-                viewModel.user.removeObservers(this)
+        // --- 3. PAKAI addTransaction YANG AMAN ---
+        viewModel.addTransaction("KELUAR", amount, "Top Up $provider - $number") {
+            runOnUiThread {
+                Toast.makeText(this, "Top Up Berhasil!", Toast.LENGTH_LONG).show()
+                finish()
             }
         }
     }

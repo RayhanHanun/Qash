@@ -14,6 +14,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.MainActivity
 import com.example.qash_finalproject.R
+import com.example.qash_finalproject.SessionManager // Import SessionManager
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -24,6 +25,7 @@ import java.util.Locale
 class PbbActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
+    private lateinit var sessionManager: SessionManager // Tambahan
 
     private var isBillShown = false
     private var billAmount: Long = 0
@@ -38,9 +40,15 @@ class PbbActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
+        // 1. Session Manager
+        sessionManager = SessionManager(this)
+
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
+
+        // 2. Set User ID
+        viewModel.setUserId(sessionManager.getUserId())
 
         val actRegion = findViewById<AutoCompleteTextView>(R.id.act_region)
         val actYear = findViewById<AutoCompleteTextView>(R.id.act_year)
@@ -52,17 +60,13 @@ class PbbActivity : AppCompatActivity() {
         val tvDetailRegion = findViewById<TextView>(R.id.tv_detail_region)
         val scrollView = findViewById<NestedScrollView>(R.id.scroll_view)
 
-        // --- REVISI: LOAD DARI XML STRINGS ---
-        // 1. Array Wilayah
         val regions = resources.getStringArray(R.array.pbb_regions)
         val adapterRegion = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, regions)
         actRegion.setAdapter(adapterRegion)
 
-        // 2. Array Tahun
         val years = resources.getStringArray(R.array.pbb_years)
         val adapterYear = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, years)
         actYear.setAdapter(adapterYear)
-        // -------------------------------------
 
         val resetStateListener = View.OnFocusChangeListener { _, _ ->
             if (isBillShown) {
@@ -90,7 +94,6 @@ class PbbActivity : AppCompatActivity() {
             }
 
             if (!isBillShown) {
-                // Mode Cek Tagihan
                 billAmount = (150000..900000).random().toLong()
                 billAmount = (billAmount / 1000) * 1000
 
@@ -107,27 +110,24 @@ class PbbActivity : AppCompatActivity() {
                 scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
 
             } else {
-                // Mode Bayar
                 processPayment(nop)
             }
+        }
+
+        viewModel.errorMessage.observe(this) { msg ->
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun processPayment(nop: String) {
-        viewModel.user.observe(this) { user ->
-            if (user != null) {
-                if (user.balance >= billAmount) {
-                    viewModel.addTransaction("KELUAR", billAmount, "Bayar PBB $selectedYear ($nop)")
-                    Toast.makeText(this, "Pembayaran PBB Berhasil!", Toast.LENGTH_LONG).show()
-
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Toast.makeText(this, "Saldo tidak cukup!", Toast.LENGTH_SHORT).show()
-                }
-                viewModel.user.removeObservers(this)
+        // 3. Pakai addTransaction
+        viewModel.addTransaction("KELUAR", billAmount, "Bayar PBB $selectedYear ($nop)") {
+            runOnUiThread {
+                Toast.makeText(this, "Pembayaran PBB Berhasil!", Toast.LENGTH_LONG).show()
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
             }
         }
     }

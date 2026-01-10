@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">Qash_FinalProject</string>
 
+    <string name="login_welcome">Selamat Datang di Qash</string>
+    <string name="login_subtitle">Masuk ke akun Anda</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login">Masuk</string>
+    <string name="text_no_account">Belum punya akun? </string>
+    <string name="text_register_now">Daftar Sekarang</string>
+
     <string-array name="payment_methods">
         <item>Transfer Bank BCA</item>
         <item>Transfer Bank Mandiri</item>

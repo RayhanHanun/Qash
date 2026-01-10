@@ -3,6 +3,7 @@ package com.example.qash_finalproject.data
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 
@@ -16,11 +17,11 @@ interface QashDao {
     @Update
     suspend fun updateUser(user: User)
 
-    @Query("SELECT * FROM user_table WHERE id = :userId")
-    fun getUserById(userId: Int): LiveData<User?>
+    @Query("SELECT * FROM user_table WHERE id = :id LIMIT 1")
+    suspend fun getUserSync(id: Int): User?
 
     @Query("SELECT * FROM user_table WHERE id = :userId")
-    suspend fun getUserSync(userId: Int): User?
+    fun getUserById(userId: Int): LiveData<User?>
 
     @Query("SELECT * FROM user_table WHERE email = :email LIMIT 1")
     suspend fun getUserByEmail(email: String): User?
@@ -40,4 +41,11 @@ interface QashDao {
 
     @Query("DELETE FROM transaction_table")
     suspend fun clearAllTransactions()
+
+    // --- KATEGORI (Fitur Baru) ---
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCategory(category: Category)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllCategories(categories: List<Category>)
 }

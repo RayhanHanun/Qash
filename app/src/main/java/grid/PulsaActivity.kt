@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.R
+import com.example.qash_finalproject.SessionManager // JANGAN LUPA IMPORT INI
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -27,8 +28,9 @@ data class DataPackage(val name: String, val desc: String, val price: Long)
 class PulsaActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
+    private lateinit var sessionManager: SessionManager // Tambahan
     private var selectedAmount: Long = 0
-    private var selectedNote: String = "" 
+    private var selectedNote: String = ""
     private var activeCard: MaterialCardView? = null
 
     private val nominals = listOf(5000L, 10000L, 25000L, 50000L, 100000L, 200000L)
@@ -48,9 +50,18 @@ class PulsaActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
+        // --- TAMBAHAN PENTING ---
+        sessionManager = SessionManager(this)
+        // ------------------------
+
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
+
+        // --- SOLUSI: Set User ID ---
+        val userId = sessionManager.getUserId()
+        viewModel.setUserId(userId)
+        // --------------------------
 
         val etPhone = findViewById<TextInputEditText>(R.id.et_phone_number)
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
@@ -96,6 +107,11 @@ class PulsaActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             processTransaction(selectedAmount, phone, selectedNote)
+        }
+
+        // Feedback Error
+        viewModel.errorMessage.observe(this) { msg ->
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -202,20 +218,14 @@ class PulsaActivity : AppCompatActivity() {
     }
 
     private fun processTransaction(amount: Long, phone: String, noteType: String) {
-        // AMBIL SALDO SAAT INI (Bukan lewat observer agar tidak crash)
-        val user = viewModel.user.value
-        if (user != null) {
-            if (user.balance >= amount) {
-                val finalNote = if (noteType == "Pulsa") "Beli Pulsa $phone" else "Beli $noteType ($phone)"
-                viewModel.addTransaction("KELUAR", amount, finalNote) {
-                    Toast.makeText(this, "Pembelian Berhasil!", Toast.LENGTH_LONG).show()
-                    finish()
-                }
-            } else {
-                Toast.makeText(this, "Saldo tidak cukup!", Toast.LENGTH_SHORT).show()
+        val finalNote = if (noteType == "Pulsa") "Beli Pulsa $phone" else "Beli $noteType ($phone)"
+
+        // Panggil fungsi viewModel (yang sudah aman karena userId sudah di-set)
+        viewModel.addTransaction("KELUAR", amount, finalNote) {
+            runOnUiThread {
+                Toast.makeText(this, "Pembelian Berhasil!", Toast.LENGTH_LONG).show()
+                finish()
             }
-        } else {
-            Toast.makeText(this, "Gagal memproses. Coba lagi.", Toast.LENGTH_SHORT).show()
         }
     }
 }

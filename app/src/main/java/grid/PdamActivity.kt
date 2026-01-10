@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.R
+import com.example.qash_finalproject.SessionManager // --- IMPORT PENTING ---
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -21,6 +22,7 @@ import java.util.Locale
 class PdamActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
+    private lateinit var sessionManager: SessionManager // Tambahan
     private var selectedAmount: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,9 +33,16 @@ class PdamActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
+        // --- 1. SETUP SESSION ---
+        sessionManager = SessionManager(this)
+
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
+
+        // --- 2. SET USER ID AGAR TRANSAKSI JALAN ---
+        viewModel.setUserId(sessionManager.getUserId())
+        // ------------------------------------------
 
         val spinner = findViewById<Spinner>(R.id.spinner_wilayah)
         val areas = resources.getStringArray(R.array.pdam_regions)
@@ -60,25 +69,24 @@ class PdamActivity : AppCompatActivity() {
                 tvBillAmount.text = formatRupiah(selectedAmount)
                 tvTotalPayment.text = formatRupiah(selectedAmount)
                 tvAreaDetail.text = spinner.selectedItem.toString()
-                
+
                 layoutRincian.visibility = View.VISIBLE
                 btnAction.text = "Bayar Sekarang"
             } else {
-                // Proses Pembayaran
-                viewModel.user.observe(this) { user ->
-                    if (user != null) {
-                        if (user.balance >= selectedAmount) {
-                            val area = spinner.selectedItem.toString()
-                            viewModel.addTransaction("KELUAR", selectedAmount, "Bayar Air $area ($id)")
-                            Toast.makeText(this, "Pembayaran Berhasil!", Toast.LENGTH_LONG).show()
-                            finish()
-                        } else {
-                            Toast.makeText(this, "Saldo tidak cukup!", Toast.LENGTH_SHORT).show()
-                        }
-                        viewModel.user.removeObservers(this)
+                // --- 3. PROSES BAYAR AMAN ---
+                val area = spinner.selectedItem.toString()
+                viewModel.addTransaction("KELUAR", selectedAmount, "Bayar Air $area ($id)") {
+                    runOnUiThread {
+                        Toast.makeText(this, "Pembayaran Berhasil!", Toast.LENGTH_LONG).show()
+                        finish()
                     }
                 }
             }
+        }
+
+        // Feedback Error
+        viewModel.errorMessage.observe(this) { msg ->
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }
 

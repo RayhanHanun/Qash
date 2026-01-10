@@ -14,7 +14,11 @@ import kotlinx.coroutines.launch
 class QashViewModel(private val dao: QashDao) : ViewModel() {
 
     private val _userId = MutableLiveData<Int>()
-    
+
+    // Untuk Feedback Error (Toast)
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> = _errorMessage
+
     val user: LiveData<User?> = _userId.switchMap { id ->
         dao.getUserById(id)
     }
@@ -29,49 +33,59 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
 
     fun updateProfile(newName: String, newPhone: String, newImage: String?) {
         viewModelScope.launch {
-            val id = _userId.value ?: return@launch
-            val currentUser = dao.getUserSync(id)
-            if (currentUser != null) {
-                val updatedUser = currentUser.copy(
-                    name = newName,
-                    phone = newPhone,
-                    profileImage = newImage
-                )
-                dao.updateUser(updatedUser)
+            try { // --- PERBAIKAN POIN 3: Try-Catch ---
+                val id = _userId.value ?: return@launch
+                val currentUser = dao.getUserSync(id)
+                if (currentUser != null) {
+                    val updatedUser = currentUser.copy(
+                        name = newName,
+                        phone = newPhone,
+                        profileImage = newImage
+                    )
+                    dao.updateUser(updatedUser)
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Gagal update profil: ${e.message}"
             }
         }
     }
 
     fun addTransaction(type: String, amount: Long, description: String, onComplete: () -> Unit = {}) {
         viewModelScope.launch {
-            val id = _userId.value ?: return@launch
-            val currentUser = dao.getUserSync(id)
-            if (currentUser != null) {
-                var newBalance = currentUser.balance
+            try { // --- PERBAIKAN POIN 3: Try-Catch ---
+                val id = _userId.value ?: return@launch
+                val currentUser = dao.getUserSync(id)
 
-                if (type == "MASUK") {
-                    newBalance += amount
-                } else {
-                    if (newBalance >= amount) {
-                        newBalance -= amount
+                if (currentUser != null) {
+                    var newBalance = currentUser.balance
+
+                    if (type == "MASUK") {
+                        newBalance += amount
                     } else {
-                        return@launch
+                        if (newBalance >= amount) {
+                            newBalance -= amount
+                        } else {
+                            _errorMessage.value = "Saldo tidak mencukupi!" // Feedback Error
+                            return@launch
+                        }
                     }
+
+                    val updatedUser = currentUser.copy(balance = newBalance)
+                    dao.updateUser(updatedUser)
+
+                    val newTransaction = Transaction(
+                        userId = id,
+                        type = type,
+                        amount = amount,
+                        note = description,
+                        date = System.currentTimeMillis()
+                    )
+                    dao.insertTransaction(newTransaction)
+
+                    onComplete()
                 }
-
-                val updatedUser = currentUser.copy(balance = newBalance)
-                dao.updateUser(updatedUser)
-
-                val newTransaction = Transaction(
-                    userId = id,
-                    type = type,
-                    amount = amount,
-                    note = description,
-                    date = System.currentTimeMillis()
-                )
-                dao.insertTransaction(newTransaction)
-
-                onComplete()
+            } catch (e: Exception) {
+                _errorMessage.value = "Gagal transaksi: ${e.message}"
             }
         }
     }

@@ -7,9 +7,11 @@ import androidx.room.PrimaryKey
 data class Transaction(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val userId: Int, // Menghubungkan transaksi dengan User
-    val type: String, // "IN" (Masuk) atau "OUT" (Keluar)
+    val userId: Int,
+    val type: String,
     val amount: Long,
     val note: String,
+    val categoryName: String = "Lainnya",
+
     val date: Long = System.currentTimeMillis()
 )

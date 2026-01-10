@@ -225,6 +225,7 @@
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold"
+                android:textAllCaps="false"
                 android:backgroundTint="@color/qash_primary"
                 android:minWidth="140dp"/>
         </LinearLayout>

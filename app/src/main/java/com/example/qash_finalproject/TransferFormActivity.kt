@@ -1,5 +1,6 @@
 package com.example.qash_finalproject
 
+import android.content.Intent // Pastikan Intent di-import
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -108,7 +109,14 @@ class TransferFormActivity : AppCompatActivity() {
             viewModel.addTransaction("KELUAR", amount, finalNote) {
                 runOnUiThread {
                     Toast.makeText(this, "Transfer Berhasil!", Toast.LENGTH_LONG).show()
+
+                    // --- PERUBAHAN UTAMA DI SINI ---
+                    // Kembali ke MainActivity dan hapus tumpukan activity sebelumnya
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
                     finish()
+                    // -------------------------------
                 }
             }
         }

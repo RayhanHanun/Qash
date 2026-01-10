@@ -14,6 +14,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.MainActivity
 import com.example.qash_finalproject.R
+import com.example.qash_finalproject.SessionManager // Pastikan ini ter-import
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -23,6 +24,7 @@ import java.util.Locale
 class InternetPaymentActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
+    private lateinit var sessionManager: SessionManager
     private var billAmount: Long = 0
     private var isBillShown = false
 
@@ -30,6 +32,7 @@ class InternetPaymentActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_internet_payment)
 
+        // Ambil Data dari Intent (yang dikirim dari InternetActivity)
         val providerName = intent.getStringExtra("PROVIDER_NAME") ?: "Internet"
         val providerLogo = intent.getIntExtra("PROVIDER_LOGO", R.drawable.ic_internet)
 
@@ -37,15 +40,21 @@ class InternetPaymentActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        // Setup Header
+        // Setup Header UI
         findViewById<TextView>(R.id.tv_provider_name).text = providerName
         findViewById<ImageView>(R.id.img_provider_logo).setImageResource(providerLogo)
+
+        // --- 1. SETUP SESSION & VIEWMODEL ---
+        sessionManager = SessionManager(this)
 
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
 
-        // Views
+        // --- 2. SET USER ID (Wajib agar transaksi jalan) ---
+        viewModel.setUserId(sessionManager.getUserId())
+
+        // Init Views
         val etId = findViewById<EditText>(R.id.et_customer_id)
         val btnAction = findViewById<Button>(R.id.btn_action)
         val cardDetail = findViewById<View>(R.id.card_bill_detail)
@@ -54,7 +63,7 @@ class InternetPaymentActivity : AppCompatActivity() {
         val tvBillProvider = findViewById<TextView>(R.id.tv_bill_provider_name)
         val scrollView = findViewById<NestedScrollView>(R.id.scroll_view)
 
-        // Reset State jika ID diubah
+        // Reset jika user mengetik ulang ID
         etId.setOnFocusChangeListener { _, _ ->
             if (isBillShown) {
                 isBillShown = false
@@ -64,7 +73,6 @@ class InternetPaymentActivity : AppCompatActivity() {
             }
         }
 
-        // LOGIKA TOMBOL MULTIFUNGSI
         btnAction.setOnClickListener {
             val id = etId.text.toString()
             if (id.isEmpty()) {
@@ -74,24 +82,19 @@ class InternetPaymentActivity : AppCompatActivity() {
 
             if (!isBillShown) {
                 // --- MODE 1: CEK TAGIHAN ---
-                // Simulasi Data
-                billAmount = (250000..500000).random().toLong()
+                billAmount = (250000..500000).random().toLong() // Simulasi random harga
                 billAmount = (billAmount / 1000) * 1000
 
                 val formatRp = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                 val textHarga = formatRp.format(billAmount).replace(",00", "")
 
-                // Tampilkan Detail
                 tvBillProvider.text = providerName
                 tvBillAmount.text = textHarga
                 tvTotalBottom.text = textHarga
                 cardDetail.visibility = View.VISIBLE
 
-                // Ubah Tombol jadi Bayar
                 btnAction.text = "Bayar Sekarang"
                 isBillShown = true
-
-                // Scroll ke bawah otomatis
                 scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
 
             } else {
@@ -99,23 +102,26 @@ class InternetPaymentActivity : AppCompatActivity() {
                 processPayment(billAmount, providerName, id)
             }
         }
+
+        // Menangkap error dari ViewModel (misal Saldo kurang)
+        viewModel.errorMessage.observe(this) { msg ->
+            if (!msg.isNullOrEmpty()) {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun processPayment(amount: Long, provider: String, custId: String) {
-        viewModel.user.observe(this) { user ->
-            if (user != null) {
-                if (user.balance >= amount) {
-                    viewModel.addTransaction("KELUAR", amount, "Bayar Internet $provider ($custId)")
-                    Toast.makeText(this, "Pembayaran Berhasil!", Toast.LENGTH_LONG).show()
+        viewModel.addTransaction("KELUAR", amount, "Bayar Internet $provider ($custId)") {
+            // Callback jika sukses
+            runOnUiThread {
+                Toast.makeText(this, "Pembayaran Berhasil!", Toast.LENGTH_LONG).show()
 
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Toast.makeText(this, "Saldo tidak cukup!", Toast.LENGTH_SHORT).show()
-                }
-                viewModel.user.removeObservers(this)
+                // Kembali ke Home agar saldo ter-refresh
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
             }
         }
     }
