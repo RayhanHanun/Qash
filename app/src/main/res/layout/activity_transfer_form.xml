@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FB">
+    android:background="@color/bg_app">
 
     <LinearLayout
         android:id="@+id/header"
@@ -54,6 +54,8 @@
         android:paddingVertical="12dp"
         android:inputType="phone"
         android:textSize="16sp"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray"
         app:layout_constraintTop_toBottomOf="@id/lbl_tujuan"/>
 
     <View
@@ -130,7 +132,7 @@
         android:layout_marginTop="16dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="#F5F5F5"
+        app:cardBackgroundColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/card_source"> <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -154,6 +156,7 @@
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@color/black"
+            android:textColorHint="@color/gray"
             android:layout_marginTop="8dp"/>
     </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -167,6 +170,8 @@
         android:background="@android:color/transparent"
         android:hint="Pesan (opsional)"
         android:textSize="14sp"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray"
         app:layout_constraintTop_toBottomOf="@+id/card_amount"/> <View
     android:layout_width="match_parent"
     android:layout_height="1dp"

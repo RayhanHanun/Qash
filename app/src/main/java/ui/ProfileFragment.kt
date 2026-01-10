@@ -12,6 +12,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.LoginActivity
@@ -20,6 +21,8 @@ import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
+// Import yang Benar untuk Tema Kamu:
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class ProfileFragment : Fragment() {
 
@@ -44,6 +47,7 @@ class ProfileFragment : Fragment() {
         viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
         viewModel.setUserId(userId)
 
+        // Init Views
         val tvName = view.findViewById<TextView>(R.id.tv_name)
         val tvPhone = view.findViewById<TextView>(R.id.tv_phone)
         val ivProfile = view.findViewById<ImageView>(R.id.iv_profile_main)
@@ -54,11 +58,17 @@ class ProfileFragment : Fragment() {
         val layoutHelp = view.findViewById<LinearLayout>(R.id.layout_help)
         val btnLogout = view.findViewById<Button>(R.id.btn_logout)
 
+        // Init Switch (Gunakan SwitchMaterial)
+        val switchDarkMode = view.findViewById<SwitchMaterial>(R.id.switch_dark_mode)
+
         // Observe User Data
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
                 tvName.text = user.name
+
+                // Gunakan 'phone' sesuai User.kt
                 tvPhone.text = user.phone
+
                 user.profileImage?.let {
                     ivProfile.setImageURI(Uri.parse(it))
                     ivProfile.setPadding(0, 0, 0, 0)
@@ -67,6 +77,19 @@ class ProfileFragment : Fragment() {
                     ivProfile.setImageResource(R.drawable.ic_nav_profile)
                     ivProfile.setPadding(12, 12, 12, 12)
                     ivProfile.setColorFilter(resources.getColor(R.color.qash_primary))
+                }
+            }
+        }
+
+        // --- LOGIKA DARK MODE ---
+        if (switchDarkMode != null) {
+            switchDarkMode.isChecked = sessionManager.isDarkMode()
+            switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+                sessionManager.setDarkMode(isChecked)
+                if (isChecked) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 }
             }
         }

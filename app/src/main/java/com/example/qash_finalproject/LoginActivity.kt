@@ -24,7 +24,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         sessionManager = SessionManager(this)
-        
+
         // Cek jika sudah login
         if (sessionManager.isLoggedIn()) {
             startActivity(Intent(this, MainActivity::class.java))
@@ -45,7 +45,12 @@ class LoginActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     val user = db.qashDao().login(email, password)
                     if (user != null) {
-                        sessionManager.saveSession(user.id)
+                        // --- PERBAIKAN DI SINI ---
+                        // Gunakan createLoginSession, bukan saveSession
+                        // Kita juga menyertakan nama user agar bisa disimpan di sesi
+                        sessionManager.createLoginSession(user.id, user.name)
+                        // -------------------------
+
                         Toast.makeText(this@LoginActivity, "Login Berhasil!", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                         finish()

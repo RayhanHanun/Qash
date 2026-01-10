@@ -70,7 +70,7 @@
                 android:layout_marginTop="8dp"
                 android:text="ℹ️ Pastikan nomor ponsel sudah benar."
                 android:textSize="12sp"
-                android:textColor="#9E9E9E"/>
+                android:textColor="@color/gray"/>
 
         </LinearLayout>
 
@@ -81,7 +81,7 @@
                 android:background="@color/white"
                 app:tabIndicatorColor="@color/qash_primary"
                 app:tabSelectedTextColor="@color/qash_primary"
-                app:tabTextColor="#757575"
+                app:tabTextColor="@color/gray"
                 app:tabMode="fixed">
 
                 <com.google.android.material.tabs.TabItem
@@ -99,7 +99,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E0E0E0"/>
+                android:background="@color/gray"
+                android:alpha="0.2"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -113,7 +114,8 @@
                     android:layout_height="wrap_content"
                     android:text="Pilih Nominal"
                     android:textStyle="bold"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp"
+                    android:textColor="@color/black"/>
 
                 <GridLayout
                     android:id="@+id/grid_pulsa"
@@ -165,7 +167,7 @@
                     android:layout_height="wrap_content"
                     android:text="Total Bayar"
                     android:textSize="12sp"
-                    android:textColor="#757575"/>
+                    android:textColor="@color/gray"/>
 
                 <TextView
                     android:id="@+id/tv_selected_price"

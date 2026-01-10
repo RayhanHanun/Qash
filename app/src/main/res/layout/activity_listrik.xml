@@ -72,7 +72,7 @@
                     android:layout_marginTop="8dp"
                     android:text="ℹ️ Pastikan nomor pelanggan sudah benar."
                     android:textSize="12sp"
-                    android:textColor="#9E9E9E"/>
+                    android:textColor="@color/gray"/>
 
             </LinearLayout>
 
@@ -83,7 +83,7 @@
                 android:background="@color/white"
                 app:tabIndicatorColor="@color/qash_primary"
                 app:tabSelectedTextColor="@color/qash_primary"
-                app:tabTextColor="#757575"
+                app:tabTextColor="@color/gray"
                 app:tabMode="fixed">
 
                 <com.google.android.material.tabs.TabItem
@@ -101,7 +101,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E0E0E0"/>
+                android:background="@color/gray"
+                android:alpha="0.2"/>
 
             <LinearLayout
                 android:id="@+id/layout_token_container"
@@ -117,7 +118,8 @@
                     android:layout_height="wrap_content"
                     android:text="Pilih Nominal"
                     android:textStyle="bold"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp"
+                    android:textColor="@color/black"/>
 
                 <GridLayout
                     android:id="@+id/grid_token"
@@ -128,7 +130,6 @@
                 </GridLayout>
             </LinearLayout>
 
-            <!-- Rincian Pembayaran Card -->
             <LinearLayout
                 android:id="@+id/layout_rincian"
                 android:layout_width="match_parent"
@@ -143,7 +144,7 @@
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="@color/white"
-                    app:strokeColor="#EEE"
+                    app:strokeColor="@color/gray"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -163,7 +164,8 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:background="#EEE"
+                            android:background="@color/gray"
+                            android:alpha="0.2"
                             android:layout_marginVertical="16dp"/>
 
                         <TextView
@@ -171,7 +173,7 @@
                             android:layout_height="wrap_content"
                             android:text="Nama Pelanggan"
                             android:textSize="12sp"
-                            android:textColor="#757575"/>
+                            android:textColor="@color/gray"/>
                         <TextView
                             android:id="@+id/tv_customer_name"
                             android:layout_width="wrap_content"
@@ -186,7 +188,7 @@
                             android:layout_height="wrap_content"
                             android:text="Periode Tagihan"
                             android:textSize="12sp"
-                            android:textColor="#757575"/>
+                            android:textColor="@color/gray"/>
                         <TextView
                             android:id="@+id/tv_billing_period"
                             android:layout_width="wrap_content"
@@ -201,7 +203,7 @@
                             android:layout_height="wrap_content"
                             android:text="Layanan"
                             android:textSize="12sp"
-                            android:textColor="#757575"/>
+                            android:textColor="@color/gray"/>
                         <TextView
                             android:id="@+id/tv_layanan"
                             android:layout_width="wrap_content"
@@ -214,7 +216,8 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:background="#EEE"
+                            android:background="@color/gray"
+                            android:alpha="0.2"
                             android:layout_marginVertical="12dp"/>
 
                         <LinearLayout
@@ -226,6 +229,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Total Tagihan"
+                                android:textColor="@color/black"
                                 android:textStyle="bold"/>
                             <TextView
                                 android:id="@+id/tv_bill_amount"
@@ -269,7 +273,7 @@
                     android:layout_height="wrap_content"
                     android:text="Total Bayar"
                     android:textSize="12sp"
-                    android:textColor="#757575"/>
+                    android:textColor="@color/gray"/>
 
                 <TextView
                     android:id="@+id/tv_total_payment"

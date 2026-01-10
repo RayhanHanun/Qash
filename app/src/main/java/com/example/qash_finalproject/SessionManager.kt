@@ -4,30 +4,43 @@ import android.content.Context
 import android.content.SharedPreferences
 
 class SessionManager(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences("qash_session", Context.MODE_PRIVATE)
+
+    private val prefs: SharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+    private val editor: SharedPreferences.Editor = prefs.edit()
 
     companion object {
-        const val KEY_IS_LOGGED_IN = "is_logged_in"
-        const val KEY_USER_ID = "user_id"
+        private const val KEY_IS_LOGGED_IN = "is_logged_in"
+        private const val KEY_USER_ID = "user_id"
+        private const val KEY_USER_NAME = "user_name"
+        private const val KEY_DARK_MODE = "is_dark_mode" // Kunci Dark Mode
     }
 
-    fun saveSession(userId: Int) {
-        prefs.edit().apply {
-            putBoolean(KEY_IS_LOGGED_IN, true)
-            putInt(KEY_USER_ID, userId)
-            apply()
-        }
+    fun createLoginSession(userId: Int, name: String) {
+        editor.putBoolean(KEY_IS_LOGGED_IN, true)
+        editor.putInt(KEY_USER_ID, userId)
+        editor.putString(KEY_USER_NAME, name)
+        editor.apply()
     }
 
-    fun isLoggedIn(): Boolean {
-        return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
-    }
+    fun isLoggedIn(): Boolean = prefs.getBoolean(KEY_IS_LOGGED_IN, false)
 
-    fun getUserId(): Int {
-        return prefs.getInt(KEY_USER_ID, -1)
-    }
+    fun getUserId(): Int = prefs.getInt(KEY_USER_ID, -1)
+
+    fun getUserName(): String? = prefs.getString(KEY_USER_NAME, null)
 
     fun logout() {
-        prefs.edit().clear().apply()
+        editor.clear()
+        editor.apply()
+    }
+
+    // --- FITUR DARK MODE ---
+    fun setDarkMode(isEnable: Boolean) {
+        editor.putBoolean(KEY_DARK_MODE, isEnable)
+        editor.apply()
+    }
+
+    fun isDarkMode(): Boolean {
+        // Default false = Mode Terang
+        return prefs.getBoolean(KEY_DARK_MODE, false)
     }
 }

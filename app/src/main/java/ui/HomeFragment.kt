@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridLayout // <--- PASTIKAN INI YANG DIIMPORT
+import android.widget.GridLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
+import com.example.qash_finalproject.PromoActivity // Pastikan import ini ada
 import com.example.qash_finalproject.R
 import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.TopUpActivity
@@ -69,6 +70,11 @@ class HomeFragment : Fragment() {
             }
         }
 
+        // --- SETUP TOMBOL PROMO (INI YANG KEMARIN KURANG) ---
+        view.findViewById<View>(R.id.btn_top_promo).setOnClickListener {
+            startActivity(Intent(context, PromoActivity::class.java))
+        }
+
         // --- SETUP MENU UTAMA (TopUp, Transfer, dll) ---
         view.findViewById<View>(R.id.btn_topup).setOnClickListener {
             startActivity(Intent(context, TopUpActivity::class.java))
@@ -81,8 +87,6 @@ class HomeFragment : Fragment() {
         }
 
         // --- SETUP MENU GRID (Pulsa, BPJS, dll) ---
-        // Kita menggunakan helper getChildAt untuk mengambil item dari GridLayout
-
         // 1. Pulsa & Data (Index 0)
         getChildAt(view, 0).setOnClickListener {
             startActivity(Intent(context, PulsaActivity::class.java))
@@ -107,11 +111,11 @@ class HomeFragment : Fragment() {
         getChildAt(view, 5).setOnClickListener {
             startActivity(Intent(context, PdamActivity::class.java))
         }
-        // 7. BPJS (NEW) - Menggunakan ID spesifik
+        // 7. BPJS
         view.findViewById<View>(R.id.btn_menu_bpjs).setOnClickListener {
             startActivity(Intent(context, BpjsActivity::class.java))
         }
-        // 8. Donasi (NEW) - Menggunakan ID spesifik
+        // 8. Donasi
         view.findViewById<View>(R.id.btn_menu_donasi).setOnClickListener {
             startActivity(Intent(context, DonasiActivity::class.java))
         }
@@ -120,9 +124,8 @@ class HomeFragment : Fragment() {
         setupPromoSlider(view)
     }
 
-    // --- PERBAIKAN DI SINI: Gunakan android.widget.GridLayout ---
     private fun getChildAt(view: View, index: Int): View {
-        val grid = view.findViewById<GridLayout>(R.id.grid_menu) // GridLayout biasa
+        val grid = view.findViewById<GridLayout>(R.id.grid_menu)
         return grid.getChildAt(index)
     }
 

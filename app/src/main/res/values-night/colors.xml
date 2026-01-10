@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="qash_primary">#448AFF</color>
+    <color name="qash_secondary">#82B1FF</color>
+
+    <color name="black">#EEEEEE</color>
+    <color name="white">#1E1E1E</color>
+    <color name="bg_app">#121212</color>
+    <color name="green_income">#69F0AE</color>
+    <color name="red_expense">#FF5252</color>
+
+    <color name="gray">#B0B0B0</color>
+    <color name="bg_screen">#121212</color>
+</resources>
