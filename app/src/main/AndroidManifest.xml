@@ -20,6 +20,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Qash_FinalProject">
         <activity
+            android:name="ui.HelpActivity"
+            android:exported="false" />
+        <activity
+            android:name="ui.TermsActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">
@@ -82,6 +88,12 @@
             android:exported="false" />
         <activity
             android:name=".grid.BpjsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.TermsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.HelpActivity"
             android:exported="false" />
     </application>
 

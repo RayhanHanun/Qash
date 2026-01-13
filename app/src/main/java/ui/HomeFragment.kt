@@ -82,7 +82,7 @@ class HomeFragment : Fragment() {
         view.findViewById<View>(R.id.btn_transfer).setOnClickListener {
             startActivity(Intent(context, TransferActivity::class.java))
         }
-        view.findViewById<View>(R.id.btn_scan).setOnClickListener {
+        view.findViewById<View>(R.id.btn_tarik).setOnClickListener {
             startActivity(Intent(context, WithdrawActivity::class.java))
         }
 

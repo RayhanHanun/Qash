@@ -19,15 +19,16 @@ import com.example.qash_finalproject.LoginActivity
 import com.example.qash_finalproject.R
 import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.data.QashDatabase
+import com.example.qash_finalproject.data.User
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
-// Import yang Benar untuk Tema Kamu:
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 class ProfileFragment : Fragment() {
 
     private lateinit var viewModel: QashViewModel
     private lateinit var sessionManager: SessionManager
+    private var currentUser: User? = null // Simpan data user untuk keperluan hapus akun
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,6 +40,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // --- 1. SETUP SESSION & DATABASE ---
         sessionManager = SessionManager(requireContext())
         val userId = sessionManager.getUserId()
 
@@ -47,28 +49,34 @@ class ProfileFragment : Fragment() {
         viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
         viewModel.setUserId(userId)
 
-        // Init Views
+        // --- 2. INISIALISASI VIEW ---
         val tvName = view.findViewById<TextView>(R.id.tv_name)
         val tvPhone = view.findViewById<TextView>(R.id.tv_phone)
         val ivProfile = view.findViewById<ImageView>(R.id.iv_profile_main)
+
+        // Tombol Edit
         val ivEdit = view.findViewById<ImageView>(R.id.iv_edit_profile)
         val layoutEditProfile = view.findViewById<LinearLayout>(R.id.layout_edit_profile)
-        val layoutSavedBank = view.findViewById<LinearLayout>(R.id.layout_saved_bank)
+
+        // Menu Lainnya
         val layoutTerms = view.findViewById<LinearLayout>(R.id.layout_terms)
         val layoutHelp = view.findViewById<LinearLayout>(R.id.layout_help)
-        val btnLogout = view.findViewById<Button>(R.id.btn_logout)
 
-        // Init Switch (Gunakan SwitchMaterial)
+        // Switch Dark Mode
         val switchDarkMode = view.findViewById<SwitchMaterial>(R.id.switch_dark_mode)
 
-        // Observe User Data
+        // Tombol Aksi
+        val btnLogout = view.findViewById<Button>(R.id.btn_logout)
+        val btnDeleteAccount = view.findViewById<Button>(R.id.btn_delete_account)
+
+        // --- 3. OBSERVE DATA USER ---
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
+                currentUser = user // Simpan ke variabel global
                 tvName.text = user.name
-
-                // Gunakan 'phone' sesuai User.kt
                 tvPhone.text = user.phone
 
+                // Load Gambar Profil
                 user.profileImage?.let {
                     ivProfile.setImageURI(Uri.parse(it))
                     ivProfile.setPadding(0, 0, 0, 0)
@@ -81,7 +89,7 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // --- LOGIKA DARK MODE ---
+        // --- 4. LOGIKA DARK MODE ---
         if (switchDarkMode != null) {
             switchDarkMode.isChecked = sessionManager.isDarkMode()
             switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
@@ -94,45 +102,72 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Navigate to EditProfileActivity
+        // --- 5. NAVIGASI MENU ---
+
+        // Ke Edit Profil
         val goToEditProfile = View.OnClickListener {
-            val intent = Intent(requireContext(), EditProfileActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireContext(), EditProfileActivity::class.java))
         }
         ivEdit.setOnClickListener(goToEditProfile)
         layoutEditProfile.setOnClickListener(goToEditProfile)
 
-        // Menu Lainnya
-        layoutSavedBank.setOnClickListener {
-            Toast.makeText(context, "Fitur Rekening Bank akan segera hadir", Toast.LENGTH_SHORT).show()
-        }
 
+        // Ke Syarat & Ketentuan
         layoutTerms.setOnClickListener {
-            Toast.makeText(context, "Syarat & Ketentuan Qash App", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(context, TermsActivity::class.java))
         }
 
+        // Ke Pusat Bantuan
         layoutHelp.setOnClickListener {
-            Toast.makeText(context, "Hubungi Customer Service: support@qash.id", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(context, HelpActivity::class.java))
         }
+
+        // --- 6. LOGOUT & DELETE ACCOUNT ---
 
         btnLogout.setOnClickListener {
             showLogoutDialog()
         }
+
+        btnDeleteAccount.setOnClickListener {
+            showDeleteAccountDialog()
+        }
     }
+
+    // --- HELPER FUNCTIONS ---
 
     private fun showLogoutDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("Konfirmasi Keluar")
             .setMessage("Apakah Anda yakin ingin keluar dari akun?")
             .setPositiveButton("Ya, Keluar") { _, _ ->
-                sessionManager.logout()
-                Toast.makeText(context, "Berhasil keluar", Toast.LENGTH_SHORT).show()
-                val intent = Intent(requireContext(), LoginActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                activity?.finish()
+                performLogout()
             }
             .setNegativeButton("Batal", null)
             .show()
+    }
+
+    private fun showDeleteAccountDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Akun Permanen")
+            .setMessage("PERINGATAN: Tindakan ini tidak dapat dibatalkan. Semua data transaksi dan saldo Anda akan hilang selamanya. Yakin ingin menghapus akun?")
+            .setPositiveButton("YA, HAPUS") { _, _ ->
+                // Panggil ViewModel untuk hapus user
+                currentUser?.let { user ->
+                    viewModel.deleteAccount(user) {
+                        Toast.makeText(context, "Akun berhasil dihapus permanen.", Toast.LENGTH_LONG).show()
+                        performLogout() // Logout setelah dihapus
+                    }
+                }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun performLogout() {
+        sessionManager.logout()
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        activity?.finish()
     }
 }

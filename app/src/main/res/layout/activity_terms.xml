@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_app">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/qash_primary"
+        android:orientation="vertical"
+        android:paddingBottom="0dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp">
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_back"
+                app:tint="@color/white"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Syarat &amp; Ketentuan"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1. Pendahuluan"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Selamat datang di aplikasi Qash. Dengan menggunakan aplikasi ini, Anda setuju untuk mematuhi syarat dan ketentuan yang berlaku. Aplikasi ini disediakan untuk memudahkan transaksi pembayaran digital Anda."
+                        android:textColor="@color/gray"
+                        android:lineSpacingMultiplier="1.2"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2. Akun Pengguna"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:layout_marginTop="16dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Anda bertanggung jawab penuh atas keamanan akun Anda, termasuk menjaga kerahasiaan password dan kode OTP. Qash tidak bertanggung jawab atas kerugian yang disebabkan oleh kelalaian pengguna."
+                        android:textColor="@color/gray"
+                        android:lineSpacingMultiplier="1.2"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3. Transaksi"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:layout_marginTop="16dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Segala transaksi yang telah dikonfirmasi tidak dapat dibatalkan. Pastikan Anda memeriksa kembali detail pembayaran sebelum menyelesaikan transaksi."
+                        android:textColor="@color/gray"
+                        android:lineSpacingMultiplier="1.2"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4. Perubahan Ketentuan"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:layout_marginTop="16dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Qash berhak untuk mengubah syarat dan ketentuan ini sewaktu-waktu tanpa pemberitahuan sebelumnya. Pengguna disarankan untuk memeriksa halaman ini secara berkala."
+                        android:textColor="@color/gray"
+                        android:lineSpacingMultiplier="1.2"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Terakhir diperbarui: 14 Januari 2026"
+                android:gravity="center"
+                android:textColor="@color/gray"
+                android:textSize="12sp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -165,35 +165,6 @@
                         android:textColor="@color/black"/>
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/gray"
-                    android:alpha="0.2"
-                    android:layout_marginStart="56dp"/>
-
-                <LinearLayout
-                    android:id="@+id/layout_saved_bank"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:gravity="center_vertical"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackground">
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_nav_home"
-                        app:tint="#757575"/>
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Rekening Bank Tersimpan"
-                        android:layout_marginStart="16dp"
-                        android:textColor="@color/black"/>
-                </LinearLayout>
             </LinearLayout>
 
             <TextView
@@ -314,12 +285,27 @@
                 android:id="@+id/btn_logout"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_margin="20dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginHorizontal="20dp"
                 android:text="Keluar Akun"
                 android:textColor="#D32F2F"
                 android:textStyle="bold"
                 android:backgroundTint="#FFEBEE"
                 style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+            <Button
+                android:id="@+id/btn_delete_account"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="20dp"
+                android:text="Hapus Akun Permanen"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:backgroundTint="#D32F2F"/>
+
+
 
             <TextView
                 android:layout_width="match_parent"
@@ -327,7 +313,7 @@
                 android:text="Qash App v1.0.0"
                 android:gravity="center"
                 android:textSize="12sp"
-                android:textColor="#BDBDBD"/>
+                android:textColor="#BDBDBD" />
 
         </LinearLayout>
     </ScrollView>

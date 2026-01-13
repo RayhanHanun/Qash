@@ -10,6 +10,7 @@ import com.example.qash_finalproject.data.QashDao
 import com.example.qash_finalproject.data.Transaction
 import com.example.qash_finalproject.data.User
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 
 class QashViewModel(private val dao: QashDao) : ViewModel() {
 
@@ -86,6 +87,18 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Gagal transaksi: ${e.message}"
+            }
+        }
+    }
+
+    fun deleteAccount(user: User, onSuccess: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Hapus data user dari database
+            dao.deleteUser(user)
+
+            // Kembali ke Main Thread untuk update UI (Logout/Pindah Layar)
+            launch(Dispatchers.Main) {
+                onSuccess()
             }
         }
     }
