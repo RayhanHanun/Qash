@@ -15,6 +15,7 @@ import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.example.qash_finalproject.PromoActivity // Pastikan import ini ada
 import com.example.qash_finalproject.R
+import com.example.qash_finalproject.RequestActivity
 import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.TopUpActivity
 import com.example.qash_finalproject.TransferActivity
@@ -81,6 +82,9 @@ class HomeFragment : Fragment() {
         }
         view.findViewById<View>(R.id.btn_transfer).setOnClickListener {
             startActivity(Intent(context, TransferActivity::class.java))
+        }
+        view.findViewById<View>(R.id.btn_request).setOnClickListener {
+            startActivity(Intent(context, RequestActivity::class.java))
         }
         view.findViewById<View>(R.id.btn_tarik).setOnClickListener {
             startActivity(Intent(context, WithdrawActivity::class.java))

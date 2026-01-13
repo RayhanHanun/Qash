@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/qash_primary"
+    android:gravity="center">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QR Code Saya"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tunjukkan QR ini ke teman untuk menerima saldo Qash"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:textColor="@color/gray"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"/>
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:src="@drawable/ic_nav_qris"
+                android:scaleType="fitCenter"
+                app:tint="@color/black"/>
+
+            <TextView
+                android:id="@+id/tv_req_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="NAMA PENGGUNA"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginTop="24dp"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/tv_req_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="0812-XXXX-XXXX"
+                android:textColor="@color/gray"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kembali"
+        android:layout_marginTop="32dp"
+        android:textColor="@color/white"
+        style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+</LinearLayout>
