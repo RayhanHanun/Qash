@@ -40,11 +40,9 @@ class TransferFormActivity : AppCompatActivity() {
         if (transferType == "BANK") {
             tvTitle.text = "Ke Rekening Bank"
             lblTujuan.text = "Nomor Rekening"
-            etReceiver.hint = "Contoh: 1234567890"
         } else {
             tvTitle.text = "Ke Sesama Qash"
             lblTujuan.text = "Nomor Ponsel / ID Qash"
-            etReceiver.hint = "Contoh: 081234567890"
         }
 
         val dao = QashDatabase.getDatabase(application).qashDao()

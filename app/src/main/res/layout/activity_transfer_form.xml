@@ -166,7 +166,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:backgroundTint="@color/qash_primary"
-                android:text="Konfirmasi Transfer"
+                android:text="KONFIRMASI TRANSFER"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textStyle="bold"

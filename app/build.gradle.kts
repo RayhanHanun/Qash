@@ -70,4 +70,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("androidx.arch.core:core-testing:2.2.0") // Untuk testing LiveData
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // Untuk testing Coroutines
+    testImplementation("org.mockito:mockito-core:5.7.0") // Framework Mocking
+    testImplementation("org.mockito:mockito-inline:5.2.0") // Support mock final class
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0") // Helper Mockito untuk Kotlin
 }
