@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.example.qash_finalproject.R
-import com.example.qash_finalproject.SessionManager // JANGAN LUPA IMPORT INI
+import com.example.qash_finalproject.R // <--- PENTING: Agar R.id tidak merah
+import com.example.qash_finalproject.SessionManager // <--- PENTING
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -23,12 +23,13 @@ import com.google.android.material.textfield.TextInputEditText
 import java.text.NumberFormat
 import java.util.Locale
 
+// Data Class sederhana untuk paket data
 data class DataPackage(val name: String, val desc: String, val price: Long)
 
 class PulsaActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
-    private lateinit var sessionManager: SessionManager // Tambahan
+    private lateinit var sessionManager: SessionManager
     private var selectedAmount: Long = 0
     private var selectedNote: String = ""
     private var activeCard: MaterialCardView? = null
@@ -50,39 +51,37 @@ class PulsaActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        // --- TAMBAHAN PENTING ---
         sessionManager = SessionManager(this)
-        // ------------------------
-
         val dao = QashDatabase.getDatabase(application).qashDao()
-        val viewModelFactory = QashViewModelFactory(dao)
-        viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
+        val factory = QashViewModelFactory(dao)
+        viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
 
-        // --- SOLUSI: Set User ID ---
-        val userId = sessionManager.getUserId()
-        viewModel.setUserId(userId)
-        // --------------------------
+        // Set User ID yang sedang login
+        viewModel.setUserId(sessionManager.getUserId())
 
         val etPhone = findViewById<TextInputEditText>(R.id.et_phone_number)
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
         val gridPulsa = findViewById<GridLayout>(R.id.grid_pulsa)
-        val gridData = findViewById<GridLayout>(R.id.grid_data)
+        val gridData = findViewById<GridLayout>(R.id.grid_data) // Pastikan ID ini ada di XML
         val tvLabel = findViewById<TextView>(R.id.tv_label_pilihan)
         val tvSelectedPrice = findViewById<TextView>(R.id.tv_selected_price)
         val btnConfirm = findViewById<Button>(R.id.btn_confirm_pulsa)
 
+        // Generate Menu Pulsa
         nominals.forEach { amount ->
             val cardView = createPulsaCard(amount)
             cardView.setOnClickListener { handleCardSelection(cardView, amount, "Pulsa", btnConfirm, tvSelectedPrice) }
             gridPulsa.addView(cardView)
         }
 
+        // Generate Menu Paket Data
         dataPackages.forEach { pkg ->
             val cardView = createDataCard(pkg)
             cardView.setOnClickListener { handleCardSelection(cardView, pkg.price, pkg.name, btnConfirm, tvSelectedPrice) }
             gridData.addView(cardView)
         }
 
+        // Logic Tab (Pulsa vs Data)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 resetSelection(btnConfirm, tvSelectedPrice)
@@ -106,12 +105,12 @@ class PulsaActivity : AppCompatActivity() {
                 etPhone.error = "Nomor tidak valid"
                 return@setOnClickListener
             }
+            // Panggil fungsi transaksi
             processTransaction(selectedAmount, phone, selectedNote)
         }
 
-        // Feedback Error
         viewModel.errorMessage.observe(this) { msg ->
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            if (!msg.isNullOrEmpty()) Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -126,6 +125,7 @@ class PulsaActivity : AppCompatActivity() {
     private fun handleCardSelection(clickedCard: MaterialCardView, amount: Long, note: String, btnConfirm: Button, tvPrice: TextView) {
         val blueColor = ContextCompat.getColor(this, R.color.qash_primary)
         val formatRp = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
+
         if (activeCard == clickedCard) {
             clickedCard.strokeWidth = 0
             activeCard = null
@@ -156,9 +156,11 @@ class PulsaActivity : AppCompatActivity() {
         card.radius = 24f
         card.cardElevation = 4f
         card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white))
+
         val outValue = TypedValue()
         theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
         card.foreground = ContextCompat.getDrawable(this, outValue.resourceId)
+
         val textView = TextView(this)
         val formatRp = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
         textView.text = formatRp.format(amount).replace(",00", "")
@@ -167,6 +169,7 @@ class PulsaActivity : AppCompatActivity() {
         textView.setPadding(32, 48, 32, 48)
         textView.setTextColor(ContextCompat.getColor(this, R.color.qash_primary))
         textView.setTypeface(null, android.graphics.Typeface.BOLD)
+
         card.addView(textView)
         return card
     }
@@ -182,13 +185,16 @@ class PulsaActivity : AppCompatActivity() {
         card.radius = 24f
         card.cardElevation = 4f
         card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white))
+
         val outValue = TypedValue()
         theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
         card.foreground = ContextCompat.getDrawable(this, outValue.resourceId)
+
         val container = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.VERTICAL
             setPadding(40, 40, 40, 40)
         }
+
         val tvName = TextView(this).apply {
             text = pkg.name
             textSize = 18f
@@ -210,6 +216,7 @@ class PulsaActivity : AppCompatActivity() {
             gravity = Gravity.END
             setPadding(0, 20, 0, 0)
         }
+
         container.addView(tvName)
         container.addView(tvDesc)
         container.addView(tvPrice)
@@ -220,8 +227,13 @@ class PulsaActivity : AppCompatActivity() {
     private fun processTransaction(amount: Long, phone: String, noteType: String) {
         val finalNote = if (noteType == "Pulsa") "Beli Pulsa $phone" else "Beli $noteType ($phone)"
 
-        // Panggil fungsi viewModel (yang sudah aman karena userId sudah di-set)
-        viewModel.addTransaction("KELUAR", amount, finalNote) {
+        // --- PEMANGGILAN YANG SUDAH SESUAI DENGAN VIEWMODEL ---
+        viewModel.addTransaction(
+            type = "KELUAR",
+            amount = amount,
+            description = finalNote,
+            category = "Pulsa" // <--- Ini wajib ada agar cocok dengan QashViewModel
+        ) {
             runOnUiThread {
                 Toast.makeText(this, "Pembelian Berhasil!", Toast.LENGTH_LONG).show()
                 finish()

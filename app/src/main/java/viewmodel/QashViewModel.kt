@@ -20,10 +20,12 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
 
+    // LiveData User yang auto-update jika ada perubahan di Database
     val user: LiveData<User?> = _userId.switchMap { id ->
         dao.getUserById(id)
     }
 
+    // LiveData List Transaksi
     val allTransactions: LiveData<List<Transaction>> = _userId.switchMap { id ->
         dao.getAllTransactions(id)
     }
@@ -32,9 +34,10 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
         _userId.value = id
     }
 
+    // Fungsi Update Profil (Nama, HP, Foto)
     fun updateProfile(newName: String, newPhone: String, newImage: String?) {
         viewModelScope.launch {
-            try { // --- PERBAIKAN POIN 3: Try-Catch ---
+            try {
                 val id = _userId.value ?: return@launch
                 val currentUser = dao.getUserSync(id)
                 if (currentUser != null) {
@@ -51,38 +54,50 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
         }
     }
 
-    fun addTransaction(type: String, amount: Long, description: String, onComplete: () -> Unit = {}) {
+    // --- FUNGSI TRANSAKSI UTAMA (Sudah Support Kategori) ---
+    fun addTransaction(
+        type: String,
+        amount: Long,
+        description: String,
+        category: String, // <--- Parameter Baru: Kategori Transaksi
+        onComplete: () -> Unit = {}
+    ) {
         viewModelScope.launch {
-            try { // --- PERBAIKAN POIN 3: Try-Catch ---
+            try {
                 val id = _userId.value ?: return@launch
                 val currentUser = dao.getUserSync(id)
 
                 if (currentUser != null) {
                     var newBalance = currentUser.balance
 
+                    // 1. Logic Cek & Update Saldo
                     if (type == "MASUK") {
                         newBalance += amount
                     } else {
                         if (newBalance >= amount) {
                             newBalance -= amount
                         } else {
-                            _errorMessage.value = "Saldo tidak mencukupi!" // Feedback Error
+                            _errorMessage.value = "Saldo tidak mencukupi!" // Kirim error ke UI
                             return@launch
                         }
                     }
 
+                    // Simpan Saldo Baru ke Database User
                     val updatedUser = currentUser.copy(balance = newBalance)
                     dao.updateUser(updatedUser)
 
+                    // 2. Simpan Riwayat Transaksi (Dengan Kategori)
                     val newTransaction = Transaction(
                         userId = id,
                         type = type,
                         amount = amount,
                         note = description,
+                        categoryName = category, // <--- Disimpan ke Database
                         date = System.currentTimeMillis()
                     )
                     dao.insertTransaction(newTransaction)
 
+                    // Beritahu UI bahwa sukses
                     onComplete()
                 }
             } catch (e: Exception) {
@@ -91,6 +106,7 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
         }
     }
 
+    // Fungsi Hapus Akun Permanen (Fitur Delete Data)
     fun deleteAccount(user: User, onSuccess: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             // Hapus data user dari database
@@ -104,6 +120,7 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
     }
 }
 
+// Factory untuk membuat ViewModel (Karena butuh parameter DAO)
 class QashViewModelFactory(private val dao: QashDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(QashViewModel::class.java)) {

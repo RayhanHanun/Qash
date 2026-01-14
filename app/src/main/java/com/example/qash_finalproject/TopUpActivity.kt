@@ -27,8 +27,7 @@ class TopUpActivity : AppCompatActivity() {
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
-        
-        // PENTING: Set userId ke ViewModel agar tahu siapa yang sedang top up
+
         viewModel.setUserId(userId)
 
         val etAmount: TextInputEditText = findViewById(R.id.et_amount)
@@ -52,7 +51,13 @@ class TopUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            viewModel.addTransaction("MASUK", amount, "Top Up via $selectedMethod") {
+            // PANGGIL FUNGSI TRANSAKSI DENGAN KATEGORI "Top Up"
+            viewModel.addTransaction(
+                type = "MASUK",
+                amount = amount,
+                description = "Top Up via $selectedMethod",
+                category = "Top Up" // <--- Parameter Baru
+            ) {
                 runOnUiThread {
                     Toast.makeText(this, "Top Up Rp $amount Berhasil!", Toast.LENGTH_LONG).show()
                     finish()

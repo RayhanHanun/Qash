@@ -33,67 +33,51 @@ class BpjsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bpjs)
 
-        // Setup Toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        // Setup Session & DB
         sessionManager = SessionManager(this)
         val dao = QashDatabase.getDatabase(application).qashDao()
         val factory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
         viewModel.setUserId(sessionManager.getUserId())
 
-        // Init Views
         val etNumber = findViewById<TextInputEditText>(R.id.et_bpjs_number)
-        val spinner = findViewById<Spinner>(R.id.spinner_months)
+        val spinner = findViewById<Spinner>(R.id.spinner_months) // ID: spinner_months
+        // PERBAIKAN ID: btn_action
         val btnAction = findViewById<Button>(R.id.btn_action)
+
         val cardDetail = findViewById<View>(R.id.card_bill_detail)
-        val tvBillAmount = findViewById<TextView>(R.id.tv_bill_amount)
-        val tvTotalBottom = findViewById<TextView>(R.id.tv_total_bottom)
-        val tvPeriode = findViewById<TextView>(R.id.tv_periode)
         val scrollView = findViewById<NestedScrollView>(R.id.scroll_view)
 
-        // Setup Spinner (MENGGUNAKAN RESOURCES)
-        // Pastikan 'bpjs_payment_periods' sudah ada di strings.xml
-        val months = resources.getStringArray(R.array.bpjs_payment_periods)
+        val tvBillAmount = findViewById<TextView>(R.id.tv_bill_amount)
+        // PERBAIKAN ID: tv_total_bottom
+        val tvTotalBottom = findViewById<TextView>(R.id.tv_total_bottom)
+        val tvPeriode = findViewById<TextView>(R.id.tv_periode)
 
+        val months = listOf("1 Bulan", "3 Bulan", "6 Bulan", "1 Tahun")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, months)
         spinner.adapter = adapter
-
-        // Reset state jika user mengetik ulang nomor
-        etNumber.setOnFocusChangeListener { _, _ ->
-            if (isBillShown) {
-                isBillShown = false
-                cardDetail.visibility = View.GONE
-                btnAction.text = "Cek Tagihan"
-                tvTotalBottom.text = "-"
-            }
-        }
 
         btnAction.setOnClickListener {
             val number = etNumber.text.toString()
             if (number.length < 10) {
-                etNumber.error = "Nomor VA tidak valid"
+                etNumber.error = "Nomor BPJS Salah"
                 return@setOnClickListener
             }
 
             if (!isBillShown) {
-                // --- MODE CEK TAGIHAN ---
-                val selectedMonthIndex = spinner.selectedItemPosition
-
-                // Logika Harga: Index 0 (1 Bulan) = x1, Index 1 (3 Bulan) = x3, dst.
-                // Urutan array di strings.xml harus: "1 Bulan", "3 Bulan", "6 Bulan", "1 Tahun"
-                val multiplier = when (selectedMonthIndex) {
-                    0 -> 1   // 1 Bulan
-                    1 -> 3   // 3 Bulan
-                    2 -> 6   // 6 Bulan
-                    3 -> 12  // 1 Tahun
+                val selectedMonthPos = spinner.selectedItemPosition
+                val multiplier = when (selectedMonthPos) {
+                    0 -> 1
+                    1 -> 3
+                    2 -> 6
+                    3 -> 12
                     else -> 1
                 }
 
-                billAmount = 150000L * multiplier // Asumsi kelas 1 @150rb
+                billAmount = 150000L * multiplier
 
                 val formatRp = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                 val textHarga = formatRp.format(billAmount).replace(",00", "")
@@ -105,13 +89,15 @@ class BpjsActivity : AppCompatActivity() {
                 cardDetail.visibility = View.VISIBLE
                 btnAction.text = "Bayar Sekarang"
                 isBillShown = true
-
-                // Scroll ke bawah
                 scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
 
             } else {
-                // --- MODE BAYAR ---
-                viewModel.addTransaction("KELUAR", billAmount, "Bayar BPJS - $number") {
+                viewModel.addTransaction(
+                    type = "KELUAR",
+                    amount = billAmount,
+                    description = "Bayar BPJS - $number",
+                    category = "BPJS"
+                ) {
                     runOnUiThread {
                         Toast.makeText(this, "Pembayaran BPJS Berhasil!", Toast.LENGTH_LONG).show()
                         val intent = Intent(this, MainActivity::class.java)
@@ -123,7 +109,6 @@ class BpjsActivity : AppCompatActivity() {
             }
         }
 
-        // Error Handler
         viewModel.errorMessage.observe(this) { msg ->
             if (!msg.isNullOrEmpty()) Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }

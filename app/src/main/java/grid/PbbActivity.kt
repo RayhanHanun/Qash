@@ -14,7 +14,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.MainActivity
 import com.example.qash_finalproject.R
-import com.example.qash_finalproject.SessionManager // Import SessionManager
+import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -25,7 +25,7 @@ import java.util.Locale
 class PbbActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
-    private lateinit var sessionManager: SessionManager // Tambahan
+    private lateinit var sessionManager: SessionManager
 
     private var isBillShown = false
     private var billAmount: Long = 0
@@ -40,56 +40,43 @@ class PbbActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        // 1. Session Manager
         sessionManager = SessionManager(this)
-
         val dao = QashDatabase.getDatabase(application).qashDao()
-        val viewModelFactory = QashViewModelFactory(dao)
-        viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
-
-        // 2. Set User ID
+        val factory = QashViewModelFactory(dao)
+        viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
         viewModel.setUserId(sessionManager.getUserId())
 
-        val actRegion = findViewById<AutoCompleteTextView>(R.id.act_region)
-        val actYear = findViewById<AutoCompleteTextView>(R.id.act_year)
         val etNop = findViewById<TextInputEditText>(R.id.et_nop)
-        val cardDetail = findViewById<android.view.View>(R.id.card_bill_detail)
+        val autoCompleteRegion = findViewById<AutoCompleteTextView>(R.id.act_region) // ID: act_region
+        val autoCompleteYear = findViewById<AutoCompleteTextView>(R.id.act_year)     // ID: act_year
+        // PERBAIKAN ID: btn_action_pbb
         val btnAction = findViewById<Button>(R.id.btn_action_pbb)
-        val tvTotalBottom = findViewById<TextView>(R.id.tv_total_bottom)
-        val tvBillAmount = findViewById<TextView>(R.id.tv_bill_amount)
-        val tvDetailRegion = findViewById<TextView>(R.id.tv_detail_region)
+
+        val cardDetail = findViewById<View>(R.id.card_bill_detail)
         val scrollView = findViewById<NestedScrollView>(R.id.scroll_view)
 
-        val regions = resources.getStringArray(R.array.pbb_regions)
-        val adapterRegion = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, regions)
-        actRegion.setAdapter(adapterRegion)
+        val tvDetailRegion = findViewById<TextView>(R.id.tv_detail_region)
+        val tvBillAmount = findViewById<TextView>(R.id.tv_bill_amount)
+        // PERBAIKAN ID: tv_total_bottom
+        val tvTotalBottom = findViewById<TextView>(R.id.tv_total_bottom)
 
-        val years = resources.getStringArray(R.array.pbb_years)
-        val adapterYear = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, years)
-        actYear.setAdapter(adapterYear)
+        val regions = listOf("DKI Jakarta", "Kota Bandung", "Kab. Bogor", "Kota Surabaya", "Kota Medan")
+        val years = listOf("2024", "2023", "2022")
 
-        val resetStateListener = View.OnFocusChangeListener { _, _ ->
-            if (isBillShown) {
-                isBillShown = false
-                cardDetail.visibility = View.GONE
-                btnAction.text = "Cek Tagihan"
-                tvTotalBottom.text = "-"
-            }
-        }
-        etNop.onFocusChangeListener = resetStateListener
-        actRegion.setOnItemClickListener { _, _, _, _ -> resetStateListener.onFocusChange(actRegion, true) }
+        autoCompleteRegion.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, regions))
+        autoCompleteYear.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, years))
 
         btnAction.setOnClickListener {
-            selectedRegion = actRegion.text.toString()
-            selectedYear = actYear.text.toString()
             val nop = etNop.text.toString()
+            selectedRegion = autoCompleteRegion.text.toString()
+            selectedYear = autoCompleteYear.text.toString()
 
-            if (selectedRegion.isEmpty() || selectedYear.isEmpty()) {
-                Toast.makeText(this, "Lengkapi data wilayah dan tahun", Toast.LENGTH_SHORT).show()
+            if (nop.length < 10) {
+                etNop.error = "NOP harus valid"
                 return@setOnClickListener
             }
-            if (nop.length < 10) {
-                etNop.error = "NOP minimal 10 digit"
+            if (selectedRegion.isEmpty()) {
+                autoCompleteRegion.error = "Pilih Wilayah"
                 return@setOnClickListener
             }
 
@@ -120,8 +107,12 @@ class PbbActivity : AppCompatActivity() {
     }
 
     private fun processPayment(nop: String) {
-        // 3. Pakai addTransaction
-        viewModel.addTransaction("KELUAR", billAmount, "Bayar PBB $selectedYear ($nop)") {
+        viewModel.addTransaction(
+            type = "KELUAR",
+            amount = billAmount,
+            description = "Bayar PBB $selectedYear ($nop)",
+            category = "PBB"
+        ) {
             runOnUiThread {
                 Toast.makeText(this, "Pembayaran PBB Berhasil!", Toast.LENGTH_LONG).show()
                 val intent = Intent(this, MainActivity::class.java)

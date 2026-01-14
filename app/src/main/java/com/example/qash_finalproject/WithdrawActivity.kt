@@ -28,23 +28,29 @@ class WithdrawActivity : AppCompatActivity() {
         sessionManager = SessionManager(this)
         val userId = sessionManager.getUserId()
 
-        // 1. Setup ViewModel
         val dao = QashDatabase.getDatabase(application).qashDao()
         val viewModelFactory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
         viewModel.setUserId(userId)
 
-        // 2. Ambil Saldo Terkini (untuk validasi)
+        // Observe Saldo
         viewModel.user.observe(this) { user ->
             if (user != null) currentBalance = user.balance
+        }
+
+        // Observe Error
+        viewModel.errorMessage.observe(this) { msg ->
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
 
         val tvSelectedAmount: TextView = findViewById(R.id.tv_selected_amount)
         val spinnerMerchant: Spinner = findViewById(R.id.spinner_merchant)
         val btnConfirm: Button = findViewById(R.id.btn_confirm)
-        val btnBack = findViewById<ImageView>(R.id.btn_back)
+        val btnBack: ImageView = findViewById(R.id.btn_back)
 
-        // 3. Logic Tombol Nominal
+        btnBack.setOnClickListener { finish() }
+
+        // Tombol Pilihan Nominal
         val btn50k: Button = findViewById(R.id.btn_50k)
         val btn100k: Button = findViewById(R.id.btn_100k)
         val btn250k: Button = findViewById(R.id.btn_250k)
@@ -61,7 +67,7 @@ class WithdrawActivity : AppCompatActivity() {
         btn250k.setOnClickListener { setAmount(250000) }
         btn500k.setOnClickListener { setAmount(500000) }
 
-        // 4. Aksi Konfirmasi
+        // Aksi Konfirmasi
         btnConfirm.setOnClickListener {
             if (selectedAmount == 0L) {
                 Toast.makeText(this, "Pilih nominal dulu!", Toast.LENGTH_SHORT).show()
@@ -75,16 +81,18 @@ class WithdrawActivity : AppCompatActivity() {
 
             val merchant = spinnerMerchant.selectedItem.toString()
 
-            // Simpan Transaksi (KELUAR)
-            viewModel.addTransaction("KELUAR", selectedAmount, "Tarik Tunai di $merchant") {
+            // PANGGIL FUNGSI TRANSAKSI DENGAN KATEGORI "Tarik Tunai"
+            viewModel.addTransaction(
+                type = "KELUAR",
+                amount = selectedAmount,
+                description = "Tarik Tunai di $merchant",
+                category = "Tarik Tunai" // <--- Parameter Baru
+            ) {
                 runOnUiThread {
                     Toast.makeText(this, "Kode Penarikan Berhasil Dibuat!", Toast.LENGTH_LONG).show()
                     finish()
                 }
             }
-        }
-        btnBack.setOnClickListener {
-            finish()
         }
     }
 }

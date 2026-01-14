@@ -26,26 +26,23 @@ class DonasiActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_donasi)
 
-        // Setup Toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        // Setup ViewModel
         sessionManager = SessionManager(this)
         val dao = QashDatabase.getDatabase(application).qashDao()
         val factory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
         viewModel.setUserId(sessionManager.getUserId())
 
-        // Init Views
-        val spinner = findViewById<Spinner>(R.id.spinner_lembaga)
         val etAmount = findViewById<TextInputEditText>(R.id.et_amount)
         val etNote = findViewById<TextInputEditText>(R.id.et_note)
+        // PERBAIKAN ID: spinner_lembaga
+        val spinner = findViewById<Spinner>(R.id.spinner_lembaga)
         val btnDonate = findViewById<Button>(R.id.btn_donate)
 
-        // Data Lembaga
-        val foundations = arrayOf("Kitabisa.com", "Dompet Dhuafa", "ACT (Aksi Cepat Tanggap)", "Baznas", "Rumah Yatim", "Qash Peduli")
+        val foundations = listOf("Kitabisa", "Dompet Dhuafa", "ACT", "Baznas", "Rumah Zakat")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, foundations)
         spinner.adapter = adapter
 
@@ -65,11 +62,14 @@ class DonasiActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Pesan Transaksi
             val finalNote = if (noteStr.isNotEmpty()) "Donasi $lembaga: $noteStr" else "Donasi ke $lembaga"
 
-            // Proses Transaksi
-            viewModel.addTransaction("KELUAR", amount, finalNote) {
+            viewModel.addTransaction(
+                type = "KELUAR",
+                amount = amount,
+                description = finalNote,
+                category = "Donasi"
+            ) {
                 runOnUiThread {
                     Toast.makeText(this, "Terima kasih atas donasi Anda!", Toast.LENGTH_LONG).show()
                     val intent = Intent(this, MainActivity::class.java)
@@ -80,7 +80,6 @@ class DonasiActivity : AppCompatActivity() {
             }
         }
 
-        // Error Handler
         viewModel.errorMessage.observe(this) { msg ->
             if (!msg.isNullOrEmpty()) Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }

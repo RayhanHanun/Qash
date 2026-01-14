@@ -12,30 +12,24 @@ class TransferActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_transfer)
 
-        // 1. Inisialisasi View (Menggunakan ID yang benar)
         val btnBack = findViewById<ImageView>(R.id.btn_back)
         val cardSesama = findViewById<CardView>(R.id.card_sesama)
         val cardBank = findViewById<CardView>(R.id.card_bank)
 
-        // 2. Tombol Kembali
         btnBack.setOnClickListener {
             finish()
         }
 
-        // 3. Pilihan: Ke Sesama Qash
+        // Ke Form Transfer (Sesama)
         cardSesama.setOnClickListener {
-            // Membuka halaman Form Transfer
             val intent = Intent(this, TransferFormActivity::class.java)
-            // Kirim data tipe agar form tahu ini transfer ke sesama
             intent.putExtra("TRANSFER_TYPE", "SESAMA")
             startActivity(intent)
         }
 
-        // 4. Pilihan: Ke Rekening Bank
+        // Ke Form Transfer (Bank)
         cardBank.setOnClickListener {
-            // Membuka halaman Form Transfer juga
             val intent = Intent(this, TransferFormActivity::class.java)
-            // Tapi kirim data tipe BANK agar form menyesuaikan labelnya
             intent.putExtra("TRANSFER_TYPE", "BANK")
             startActivity(intent)
         }

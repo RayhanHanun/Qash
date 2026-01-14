@@ -1,7 +1,6 @@
 package com.example.qash_finalproject.grid
 
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.View
 import android.widget.Button
 import android.widget.GridLayout
@@ -12,7 +11,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.R
-import com.example.qash_finalproject.SessionManager // Import
+import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -25,7 +24,7 @@ import java.util.Locale
 class ListrikActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
-    private lateinit var sessionManager: SessionManager // Tambahan
+    private lateinit var sessionManager: SessionManager
     private var selectedAmount: Long = 0
     private var isTagihanTab = false
     private var activeCard: MaterialCardView? = null
@@ -40,49 +39,44 @@ class ListrikActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        // --- INIT SESSION ---
         sessionManager = SessionManager(this)
-
         val dao = QashDatabase.getDatabase(application).qashDao()
-        val viewModelFactory = QashViewModelFactory(dao)
-        viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
-
-        // --- SOLUSI: SET USER ID ---
+        val factory = QashViewModelFactory(dao)
+        viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
         viewModel.setUserId(sessionManager.getUserId())
-        // ---------------------------
 
+        // PERBAIKAN ID: et_pln_number (bukan et_id_pelanggan)
+        val etIdPel = findViewById<TextInputEditText>(R.id.et_pln_number)
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
-        val layoutToken = findViewById<View>(R.id.layout_token_container)
-        val layoutRincian = findViewById<View>(R.id.layout_rincian)
         val gridToken = findViewById<GridLayout>(R.id.grid_token)
-        val etPln = findViewById<TextInputEditText>(R.id.et_pln_number)
-        val tvTotalPayment = findViewById<TextView>(R.id.tv_total_payment)
+        val layoutTagihan = findViewById<View>(R.id.layout_rincian)
+        val layoutToken = findViewById<View>(R.id.layout_token_container)
         val btnAction = findViewById<Button>(R.id.btn_action)
-        val tvLayanan = findViewById<TextView>(R.id.tv_layanan)
-        val tvBillAmount = findViewById<TextView>(R.id.tv_bill_amount)
+        val tvTotal = findViewById<TextView>(R.id.tv_total_payment)
 
+        // Setup Grid
         tokenNominals.forEach { amount ->
-            val cardView = createTokenCard(amount)
-            cardView.setOnClickListener {
-                handleCardSelection(cardView, amount, tvLayanan, tvTotalPayment, btnAction)
+            val card = createTokenCard(amount)
+            card.setOnClickListener {
+                handleTokenSelection(card, amount, tvTotal, btnAction)
             }
-            gridToken.addView(cardView)
+            gridToken.addView(card)
         }
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                resetSelection(btnAction, tvTotalPayment)
-                if (tab?.position == 0) {
-                    isTagihanTab = false
-                    layoutToken.visibility = View.VISIBLE
-                    layoutRincian.visibility = View.GONE
-                    btnAction.text = "Beli"
-                } else {
-                    isTagihanTab = true
+                isTagihanTab = tab?.position == 1
+                if (isTagihanTab) {
                     layoutToken.visibility = View.GONE
-                    layoutRincian.visibility = View.GONE
+                    layoutTagihan.visibility = View.VISIBLE
                     btnAction.text = "Cek Tagihan"
                     btnAction.isEnabled = true
+                    resetSelection(btnAction, tvTotal)
+                } else {
+                    layoutToken.visibility = View.VISIBLE
+                    layoutTagihan.visibility = View.GONE
+                    btnAction.text = "Beli Token"
+                    btnAction.isEnabled = false
                 }
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
@@ -90,30 +84,27 @@ class ListrikActivity : AppCompatActivity() {
         })
 
         btnAction.setOnClickListener {
-            val idPln = etPln.text.toString()
-            if (idPln.isEmpty()) {
-                Toast.makeText(this, "Masukkan ID Pelanggan dulu", Toast.LENGTH_SHORT).show()
+            val id = etIdPel.text.toString()
+            if (id.length < 9) {
+                etIdPel.error = "ID Pelanggan tidak valid"
                 return@setOnClickListener
             }
 
             if (isTagihanTab) {
                 if (btnAction.text == "Cek Tagihan") {
-                    layoutRincian.visibility = View.VISIBLE
-                    tvLayanan.text = "Listrik Pasca Bayar"
-                    selectedAmount = 345000L
-                    tvBillAmount.text = formatRupiah(selectedAmount)
-                    tvTotalPayment.text = formatRupiah(selectedAmount)
-                    btnAction.text = "Bayar Sekarang"
+                    selectedAmount = (150000..500000).random().toLong()
+                    tvTotal.text = formatRupiah(selectedAmount)
+                    btnAction.text = "Bayar Tagihan"
                 } else {
-                    processPayment(selectedAmount, "Tagihan Listrik $idPln")
+                    processPayment(selectedAmount, "Bayar Listrik ($id)")
                 }
             } else {
-                processPayment(selectedAmount, "Token PLN $idPln")
+                processPayment(selectedAmount, "Token Listrik $selectedAmount ($id)")
             }
         }
 
         viewModel.errorMessage.observe(this) { msg ->
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            if (!msg.isNullOrEmpty()) Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -123,53 +114,41 @@ class ListrikActivity : AppCompatActivity() {
             width = 0
             height = GridLayout.LayoutParams.WRAP_CONTENT
             columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-            setMargins(12, 12, 12, 12)
+            setMargins(16, 16, 16, 16)
         }
         card.layoutParams = params
         card.radius = 24f
-        card.cardElevation = 2f
-        card.strokeWidth = 0
+        card.cardElevation = 4f
         card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white))
-
-        val outValue = TypedValue()
-        theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-        card.foreground = ContextCompat.getDrawable(this, outValue.resourceId)
 
         val textView = TextView(this)
         textView.text = formatRupiah(amount)
         textView.textSize = 16f
-        textView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
-        textView.setPadding(24, 40, 24, 40)
-        textView.setTextColor(ContextCompat.getColor(this, R.color.qash_primary))
+        textView.gravity = android.view.Gravity.CENTER
+        textView.setPadding(16, 32, 16, 32)
+        textView.setTextColor(ContextCompat.getColor(this, R.color.black))
         textView.setTypeface(null, android.graphics.Typeface.BOLD)
 
         card.addView(textView)
         return card
     }
 
-    private fun handleCardSelection(
-        clickedCard: MaterialCardView,
-        amount: Long,
-        tvLayanan: TextView,
-        tvTotal: TextView,
-        btnAction: Button
-    ) {
+    private fun handleTokenSelection(card: MaterialCardView, amount: Long, tvTotal: TextView, btnAction: Button) {
         val blueColor = ContextCompat.getColor(this, R.color.qash_primary)
-        if (activeCard == clickedCard) {
-            clickedCard.strokeWidth = 0
+        if (activeCard == card) {
+            card.strokeWidth = 0
             activeCard = null
             selectedAmount = 0
             btnAction.isEnabled = false
             tvTotal.text = "-"
         } else {
             activeCard?.strokeWidth = 0
-            clickedCard.strokeWidth = 6
-            clickedCard.strokeColor = blueColor
-            activeCard = clickedCard
+            card.strokeWidth = 6
+            card.strokeColor = blueColor
+            activeCard = card
             selectedAmount = amount
             btnAction.isEnabled = true
             tvTotal.text = formatRupiah(amount)
-            tvLayanan.text = "Token Listrik " + formatRupiah(amount)
         }
     }
 
@@ -177,12 +156,17 @@ class ListrikActivity : AppCompatActivity() {
         activeCard?.strokeWidth = 0
         activeCard = null
         selectedAmount = 0
-        btnAction.isEnabled = false
+        btnAction.isEnabled = true
         tvTotal.text = "-"
     }
 
     private fun processPayment(amount: Long, desc: String) {
-        viewModel.addTransaction("KELUAR", amount, desc) {
+        viewModel.addTransaction(
+            type = "KELUAR",
+            amount = amount,
+            description = desc,
+            category = "Listrik"
+        ) {
             runOnUiThread {
                 Toast.makeText(this, "Transaksi Berhasil!", Toast.LENGTH_LONG).show()
                 finish()

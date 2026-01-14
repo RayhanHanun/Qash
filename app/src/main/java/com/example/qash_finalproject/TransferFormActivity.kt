@@ -1,6 +1,6 @@
 package com.example.qash_finalproject
 
-import android.content.Intent // Pastikan Intent di-import
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -40,12 +40,11 @@ class TransferFormActivity : AppCompatActivity() {
         if (transferType == "BANK") {
             tvTitle.text = "Ke Rekening Bank"
             lblTujuan.text = "Nomor Rekening"
-            etReceiver.hint = "Masukkan nomor rekening"
-            etReceiver.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            etReceiver.hint = "Contoh: 1234567890"
         } else {
             tvTitle.text = "Ke Sesama Qash"
-            lblTujuan.text = "Nomor Ponsel / Nama"
-            etReceiver.hint = "Masukkan nomor ponsel"
+            lblTujuan.text = "Nomor Ponsel / ID Qash"
+            etReceiver.hint = "Contoh: 081234567890"
         }
 
         val dao = QashDatabase.getDatabase(application).qashDao()
@@ -53,37 +52,36 @@ class TransferFormActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, viewModelFactory)[QashViewModel::class.java]
         viewModel.setUserId(userId)
 
-        val tvCurrentBalance: TextView = findViewById(R.id.tv_current_balance)
-        viewModel.user.observe(this) { user ->
-            if (user != null) {
-                currentBalance = user.balance
-                val formatRupiah = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-                tvCurrentBalance.text = "Saldo ${formatRupiah.format(currentBalance)}"
-            }
-        }
-
-        val etAmount: EditText = findViewById(R.id.et_amount)
-        val etNote: EditText = findViewById(R.id.et_note)
-        val btnContinue: Button = findViewById(R.id.btn_continue)
-        val btnBack: ImageView = findViewById(R.id.btn_back)
+        val btnBack = findViewById<ImageView>(R.id.btn_back)
+        val tvBalance = findViewById<TextView>(R.id.tv_balance)
+        val etAmount = findViewById<EditText>(R.id.et_amount)
+        val etNote = findViewById<EditText>(R.id.et_note)
+        val btnContinue = findViewById<Button>(R.id.btn_continue)
 
         btnBack.setOnClickListener { finish() }
 
+        viewModel.user.observe(this) { user ->
+            if (user != null) {
+                currentBalance = user.balance
+                val formatRp = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
+                tvBalance.text = "Saldo Aktif: ${formatRp.format(user.balance).replace(",00", "")}"
+            }
+        }
+
+        // Error Message Observer
+        viewModel.errorMessage.observe(this) { msg ->
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        }
+
+        // TextWatcher untuk Validasi Input (Opsional, agar tombol mati/nyala)
         val textWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val amount = etAmount.text.toString().toLongOrNull() ?: 0
                 val receiver = etReceiver.text.toString()
-
-                if (amount > 0 && receiver.isNotEmpty()) {
-                    btnContinue.isEnabled = true
-                    btnContinue.backgroundTintList = getColorStateList(R.color.qash_primary)
-                } else {
-                    btnContinue.isEnabled = false
-                    btnContinue.backgroundTintList = getColorStateList(android.R.color.darker_gray)
-                }
+                btnContinue.isEnabled = amount > 0 && receiver.isNotEmpty()
             }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
         }
         etAmount.addTextChangedListener(textWatcher)
         etReceiver.addTextChangedListener(textWatcher)
@@ -106,17 +104,21 @@ class TransferFormActivity : AppCompatActivity() {
             val desc = if (transferType == "BANK") "Transfer Bank ke $receiver" else "Kirim ke $receiver"
             val finalNote = if (note.isNotEmpty()) "$desc ($note)" else desc
 
-            viewModel.addTransaction("KELUAR", amount, finalNote) {
+            // PANGGIL FUNGSI TRANSAKSI DENGAN KATEGORI "Transfer"
+            viewModel.addTransaction(
+                type = "KELUAR",
+                amount = amount,
+                description = finalNote,
+                category = "Transfer" // <--- Parameter Baru
+            ) {
                 runOnUiThread {
                     Toast.makeText(this, "Transfer Berhasil!", Toast.LENGTH_LONG).show()
 
-                    // --- PERUBAHAN UTAMA DI SINI ---
-                    // Kembali ke MainActivity dan hapus tumpukan activity sebelumnya
+                    // Kembali ke Home & Clear Stack
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                     startActivity(intent)
                     finish()
-                    // -------------------------------
                 }
             }
         }
