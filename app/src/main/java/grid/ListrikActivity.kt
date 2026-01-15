@@ -25,8 +25,11 @@ class ListrikActivity : AppCompatActivity() {
 
     private lateinit var viewModel: QashViewModel
     private lateinit var sessionManager: SessionManager
+
+    // Variabel Logic
     private var selectedAmount: Long = 0
     private var isTagihanTab = false
+    private var isBillShown = false // Penanda apakah tagihan sudah dicek/muncul
     private var activeCard: MaterialCardView? = null
 
     private val tokenNominals = listOf(20000L, 50000L, 100000L, 200000L, 500000L, 1000000L)
@@ -35,26 +38,38 @@ class ListrikActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_listrik)
 
+        // 1. Setup Toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
+        // 2. Setup ViewModel & Session
         sessionManager = SessionManager(this)
         val dao = QashDatabase.getDatabase(application).qashDao()
         val factory = QashViewModelFactory(dao)
         viewModel = ViewModelProvider(this, factory)[QashViewModel::class.java]
         viewModel.setUserId(sessionManager.getUserId())
 
-        // PERBAIKAN ID: et_pln_number (bukan et_id_pelanggan)
+        // 3. Inisialisasi View
         val etIdPel = findViewById<TextInputEditText>(R.id.et_pln_number)
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+
+        // Layout Container
         val gridToken = findViewById<GridLayout>(R.id.grid_token)
-        val layoutTagihan = findViewById<View>(R.id.layout_rincian)
-        val layoutToken = findViewById<View>(R.id.layout_token_container)
+        val layoutTagihanContainer = findViewById<View>(R.id.layout_rincian)
+
+        // Kartu Detail Rincian (PASTIKAN ID INI SAMA DENGAN XML)
+        // Jika di XML ID-nya 'layout_detail_tagihan', ganti di sini.
+        val cardHasilCek = findViewById<View>(R.id.layout_rincian)
+
         val btnAction = findViewById<Button>(R.id.btn_action)
         val tvTotal = findViewById<TextView>(R.id.tv_total_payment)
+        val tvBillAmount = findViewById<TextView>(R.id.tv_bill_amount) // Teks harga di dalam kartu rincian
 
-        // Setup Grid
+        // --- PENTING: Sembunyikan Rincian Tagihan saat pertama buka ---
+        cardHasilCek.visibility = View.GONE
+
+        // 4. Setup Grid Token (Looping Nominal)
         tokenNominals.forEach { amount ->
             val card = createTokenCard(amount)
             card.setOnClickListener {
@@ -63,50 +78,88 @@ class ListrikActivity : AppCompatActivity() {
             gridToken.addView(card)
         }
 
+        // 5. Logic Pindah Tab (Token vs Tagihan)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 isTagihanTab = tab?.position == 1
+
                 if (isTagihanTab) {
-                    layoutToken.visibility = View.GONE
-                    layoutTagihan.visibility = View.VISIBLE
+                    // --- Masuk Tab Tagihan (Pascabayar) ---
+                    gridToken.visibility = View.GONE
+                    layoutTagihanContainer.visibility = View.VISIBLE
+
+                    // RESET STATUS: Sembunyikan lagi rincian jika user bolak-balik tab
+                    isBillShown = false
+                    cardHasilCek.visibility = View.GONE
+
+                    // Reset Tombol
                     btnAction.text = "Cek Tagihan"
                     btnAction.isEnabled = true
-                    resetSelection(btnAction, tvTotal)
+                    tvTotal.text = "-"
+
                 } else {
-                    layoutToken.visibility = View.VISIBLE
-                    layoutTagihan.visibility = View.GONE
+                    // --- Masuk Tab Token (Prabayar) ---
+                    gridToken.visibility = View.VISIBLE
+                    layoutTagihanContainer.visibility = View.GONE
+
                     btnAction.text = "Beli Token"
-                    btnAction.isEnabled = false
+                    btnAction.isEnabled = false // Harus pilih nominal dulu
+                    resetSelection(btnAction, tvTotal)
                 }
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
 
+        // 6. Logic Tombol Action (Cek / Bayar)
         btnAction.setOnClickListener {
             val id = etIdPel.text.toString()
             if (id.length < 9) {
-                etIdPel.error = "ID Pelanggan tidak valid"
+                etIdPel.error = "ID Pelanggan tidak valid (Min 9 digit)"
                 return@setOnClickListener
             }
 
             if (isTagihanTab) {
-                if (btnAction.text == "Cek Tagihan") {
-                    selectedAmount = (150000..500000).random().toLong()
-                    tvTotal.text = formatRupiah(selectedAmount)
+                // --- LOGIC TAGIHAN ---
+                if (!isBillShown) {
+                    // STEP 1: Jika belum muncul tagihan -> HITUNG DULU
+
+                    // Simulasi hitung tagihan random
+                    val randomBill = (150000..850000).random().toLong()
+                    selectedAmount = (randomBill / 1000) * 1000 // Bulatkan ke ribuan terdekat
+
+                    val formattedPrice = formatRupiah(selectedAmount)
+
+                    // Update Tampilan
+                    tvTotal.text = formattedPrice
+                    tvBillAmount?.text = formattedPrice // Isi teks di dalam kartu rincian
+
+                    // MUNCULKAN KARTU RINCIAN SEKARANG
+                    cardHasilCek.visibility = View.VISIBLE
+
+                    // Ubah fungsi tombol jadi Bayar
                     btnAction.text = "Bayar Tagihan"
+                    isBillShown = true
+
                 } else {
-                    processPayment(selectedAmount, "Bayar Listrik ($id)")
+                    // STEP 2: Jika tagihan sudah muncul -> PROSES BAYAR
+                    processPayment(selectedAmount, "Tagihan Listrik ($id)")
                 }
             } else {
-                processPayment(selectedAmount, "Token Listrik $selectedAmount ($id)")
+                // --- LOGIC TOKEN ---
+                if (selectedAmount > 0) {
+                    processPayment(selectedAmount, "Token Listrik ${formatRupiah(selectedAmount)} ($id)")
+                }
             }
         }
 
+        // Observer Error Message
         viewModel.errorMessage.observe(this) { msg ->
             if (!msg.isNullOrEmpty()) Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }
+
+    // --- Helper Functions ---
 
     private fun createTokenCard(amount: Long): MaterialCardView {
         val card = MaterialCardView(this)
@@ -135,14 +188,18 @@ class ListrikActivity : AppCompatActivity() {
 
     private fun handleTokenSelection(card: MaterialCardView, amount: Long, tvTotal: TextView, btnAction: Button) {
         val blueColor = ContextCompat.getColor(this, R.color.qash_primary)
+
+        // Reset kartu sebelumnya
+        activeCard?.strokeWidth = 0
+
         if (activeCard == card) {
-            card.strokeWidth = 0
+            // Deselect (klik ulang kartu yg sama)
             activeCard = null
             selectedAmount = 0
             btnAction.isEnabled = false
             tvTotal.text = "-"
         } else {
-            activeCard?.strokeWidth = 0
+            // Select baru
             card.strokeWidth = 6
             card.strokeColor = blueColor
             activeCard = card
@@ -156,7 +213,7 @@ class ListrikActivity : AppCompatActivity() {
         activeCard?.strokeWidth = 0
         activeCard = null
         selectedAmount = 0
-        btnAction.isEnabled = true
+        btnAction.isEnabled = false
         tvTotal.text = "-"
     }
 
@@ -169,7 +226,7 @@ class ListrikActivity : AppCompatActivity() {
         ) {
             runOnUiThread {
                 Toast.makeText(this, "Transaksi Berhasil!", Toast.LENGTH_LONG).show()
-                finish()
+                finish() // Tutup activity dan kembali ke Home
             }
         }
     }
@@ -177,6 +234,6 @@ class ListrikActivity : AppCompatActivity() {
     private fun formatRupiah(number: Long): String {
         val localeID = Locale("in", "ID")
         val numberFormat = NumberFormat.getCurrencyInstance(localeID)
-        return numberFormat.format(number).replace(",00", "").replace("Rp", "Rp")
+        return numberFormat.format(number).replace(",00", "").replace("Rp", "Rp ")
     }
 }

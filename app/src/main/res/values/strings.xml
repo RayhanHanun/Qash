@@ -34,11 +34,6 @@
         <item>PDAM Surabaya</item>
     </string-array>
 
-    <string-array name="emoney_products">
-        <item>Mandiri e-Money</item>
-        <item>BCA Flazz</item>
-        <item>BNI TapCash</item>
-    </string-array>
 
     <string-array name="pbb_regions">
         <item>PBB DKI JAKARTA</item>
