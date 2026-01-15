@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.qash_finalproject.R
-import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -25,7 +24,7 @@ class HistoryFragment : Fragment() {
     private lateinit var viewModel: QashViewModel
     private lateinit var adapter: TransactionAdapter
     private lateinit var layoutEmpty: LinearLayout
-    private lateinit var progressBar: ProgressBar // Tambahan
+    private lateinit var progressBar: ProgressBar
     private lateinit var sessionManager: SessionManager
 
     override fun onCreateView(
@@ -51,7 +50,7 @@ class HistoryFragment : Fragment() {
         // 2. Setup RecyclerView & Views
         val rvHistory = view.findViewById<RecyclerView>(R.id.rv_history)
         layoutEmpty = view.findViewById(R.id.layout_empty)
-        progressBar = view.findViewById(R.id.progressBar) // Inisialisasi ProgressBar
+        progressBar = view.findViewById(R.id.progressBar) 
 
         adapter = TransactionAdapter()
         rvHistory.adapter = adapter
@@ -59,7 +58,6 @@ class HistoryFragment : Fragment() {
 
         // 3. Observasi Data Real-time
         viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
-            // --- PERBAIKAN POIN 4: Hide Loading saat data masuk ---
             progressBar.visibility = View.GONE
 
             if (transactions == null || transactions.isEmpty()) {
@@ -72,7 +70,6 @@ class HistoryFragment : Fragment() {
             }
         }
 
-        // --- PERBAIKAN POIN 5: Feedback Error (Toast) ---
         viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
             if (!message.isNullOrEmpty()) {
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()

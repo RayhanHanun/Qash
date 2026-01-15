@@ -1,10 +1,11 @@
-package com.example.qash_finalproject
+package com.example.qash_finalproject.ui
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import com.example.qash_finalproject.R
 
 class TransferActivity : AppCompatActivity() {
 

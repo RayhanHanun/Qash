@@ -13,8 +13,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.qash_finalproject.R // <--- PENTING: Agar R.id tidak merah
-import com.example.qash_finalproject.SessionManager // <--- PENTING
 import com.example.qash_finalproject.data.QashDatabase
+import com.example.qash_finalproject.ui.SessionManager
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
 import com.google.android.material.card.MaterialCardView

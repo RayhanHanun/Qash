@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:text="Daftar untuk mulai menggunakan Qash"
             android:textSize="16sp"
-            android:textColor="#757575"
+            android:textColor="@color/gray"
             android:layout_marginBottom="32dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -110,7 +110,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sudah punya akun? "
-                android:textColor="#757575"/>
+                android:textColor="@color/gray"/>
 
             <TextView
                 android:id="@+id/tv_login"

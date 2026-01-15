@@ -206,7 +206,7 @@
                     android:layout_height="wrap_content"
                     android:text="Total Pembayaran"
                     android:textSize="12sp"
-                    android:textColor="#757575"/>
+                    android:textColor="@color/gray_pay"/>
                 <TextView
                     android:id="@+id/tv_total_bottom"
                     android:layout_width="wrap_content"

@@ -1,4 +1,4 @@
-package com.example.qash_finalproject
+package com.example.qash_finalproject.ui
 
 import android.os.Bundle
 import android.widget.Button
@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.qash_finalproject.R
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory

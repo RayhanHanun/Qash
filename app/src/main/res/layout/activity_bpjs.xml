@@ -122,18 +122,44 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginTop="8dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Periode" android:textColor="#757575"/>
-                        <TextView android:id="@+id/tv_periode" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1 Bulan" android:textStyle="bold" android:textColor="@color/black"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Periode"
+                            android:textColor="@color/gray_pay"/>
+                        <TextView android:id="@+id/tv_periode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1 Bulan"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"/>
                     </LinearLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEE" android:layout_marginVertical="12dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/bg_app"
+                        android:layout_marginVertical="12dp"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Total Tagihan" android:textStyle="bold"/>
-                        <TextView android:id="@+id/tv_bill_amount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 150.000" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/qash_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Total Tagihan"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:id="@+id/tv_bill_amount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Rp 150.000"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/qash_primary"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -160,8 +186,20 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Pembayaran" android:textSize="12sp" android:textColor="#757575"/>
-                <TextView android:id="@+id/tv_total_bottom" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/qash_primary"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Pembayaran"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray_pay"/>
+                <TextView
+                    android:id="@+id/tv_total_bottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/qash_primary"/>
             </LinearLayout>
 
             <Button

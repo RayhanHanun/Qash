@@ -30,7 +30,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="20dp"
-            android:paddingBottom="140dp"> <TextView
+            android:paddingBottom="140dp">
+
+            <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Pilih Penyalur Donasi"
@@ -101,7 +103,7 @@
                 android:layout_height="wrap_content"
                 android:text="Dengan berdonasi, Anda setuju dengan Syarat &amp; Ketentuan Qash Peduli."
                 android:textSize="12sp"
-                android:textColor="#757575"
+                android:textColor="@color/gray_pay"
                 android:gravity="center"
                 android:layout_marginBottom="16dp"/>
 

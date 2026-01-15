@@ -1,4 +1,4 @@
-package com.example.qash_finalproject
+package com.example.qash_finalproject.ui
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -29,7 +29,9 @@ class SessionManager(context: Context) {
     fun getUserName(): String? = prefs.getString(KEY_USER_NAME, null)
 
     fun logout() {
-        editor.clear()
+        editor.remove(KEY_IS_LOGGED_IN)
+        editor.remove(KEY_USER_ID)
+        editor.remove(KEY_USER_NAME)
         editor.apply()
     }
 

@@ -1,4 +1,4 @@
-package com.example.qash_finalproject
+package com.example.qash_finalproject.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.qash_finalproject.MainActivity
+import com.example.qash_finalproject.R
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
@@ -102,12 +104,11 @@ class TransferFormActivity : AppCompatActivity() {
             val desc = if (transferType == "BANK") "Transfer Bank ke $receiver" else "Kirim ke $receiver"
             val finalNote = if (note.isNotEmpty()) "$desc ($note)" else desc
 
-            // PANGGIL FUNGSI TRANSAKSI DENGAN KATEGORI "Transfer"
             viewModel.addTransaction(
                 type = "KELUAR",
                 amount = amount,
                 description = finalNote,
-                category = "Transfer" // <--- Parameter Baru
+                category = "Transfer"
             ) {
                 runOnUiThread {
                     Toast.makeText(this, "Transfer Berhasil!", Toast.LENGTH_LONG).show()

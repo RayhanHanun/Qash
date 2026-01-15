@@ -4,7 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_app"> <com.google.android.material.appbar.AppBarLayout
+    android:background="@color/bg_app">
+
+    <com.google.android.material.appbar.AppBarLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
@@ -42,7 +44,9 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@android:drawable/ic_menu_search"
-                app:tint="@color/gray"/> <EditText
+                app:tint="@color/gray"/>
+
+            <EditText
             android:id="@+id/et_search_provider"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -60,7 +64,9 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/gray"
-            android:alpha="0.2"/> <androidx.recyclerview.widget.RecyclerView
+            android:alpha="0.2"/>
+
+        <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_providers"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

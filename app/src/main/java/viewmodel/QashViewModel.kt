@@ -54,12 +54,11 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
         }
     }
 
-    // --- FUNGSI TRANSAKSI UTAMA (Sudah Support Kategori) ---
     fun addTransaction(
         type: String,
         amount: Long,
         description: String,
-        category: String, // <--- Parameter Baru: Kategori Transaksi
+        category: String,
         onComplete: () -> Unit = {}
     ) {
         viewModelScope.launch {
@@ -77,7 +76,7 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
                         if (newBalance >= amount) {
                             newBalance -= amount
                         } else {
-                            _errorMessage.value = "Saldo tidak mencukupi!" // Kirim error ke UI
+                            _errorMessage.value = "Saldo tidak mencukupi!"
                             return@launch
                         }
                     }
@@ -106,7 +105,7 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
         }
     }
 
-    // Fungsi Hapus Akun Permanen (Fitur Delete Data)
+
     fun deleteAccount(user: User, onSuccess: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             // Hapus data user dari database
@@ -120,7 +119,7 @@ class QashViewModel(private val dao: QashDao) : ViewModel() {
     }
 }
 
-// Factory untuk membuat ViewModel (Karena butuh parameter DAO)
+
 class QashViewModelFactory(private val dao: QashDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(QashViewModel::class.java)) {

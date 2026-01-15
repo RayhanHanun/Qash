@@ -20,7 +20,7 @@
             android:layout_width="8dp"
             android:layout_height="8dp"
             android:background="@drawable/bg_dot_selector"
-            android:backgroundTint="#F44336"
+            android:backgroundTint="@color/red_expense"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/tv_title"
             app:layout_constraintBottom_toBottomOf="@id/tv_title"/>
@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:text="Hari ini"
             android:textSize="10sp"
-            android:textColor="#9E9E9E"
+            android:textColor="@color/gray_pay"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tv_title"
             app:layout_constraintBottom_toBottomOf="@id/tv_title"/>
@@ -56,7 +56,7 @@
             android:layout_marginTop="4dp"
             android:text="Dapatkan cashback hingga 50% untuk transaksi pertamamu hari ini. Cek sekarang!"
             android:textSize="12sp"
-            android:textColor="#616161"
+            android:textColor="@color/gray"
             android:maxLines="2"
             android:ellipsize="end"
             app:layout_constraintStart_toStartOf="@id/tv_title"

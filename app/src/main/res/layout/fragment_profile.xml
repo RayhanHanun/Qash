@@ -54,7 +54,7 @@
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         app:cardCornerRadius="30dp"
-                        app:cardBackgroundColor="#E3F2FD"
+                        app:cardBackgroundColor="@color/bg_app"
                         app:cardElevation="0dp">
                         <ImageView
                             android:id="@+id/iv_profile_main"
@@ -88,7 +88,7 @@
                             android:layout_height="wrap_content"
                             tools:text="0812-3456-7890"
                             android:textSize="14sp"
-                            android:textColor="#757575"
+                            android:textColor="@color/gray"
                             android:layout_marginTop="2dp"/>
 
                         <LinearLayout
@@ -104,14 +104,14 @@
                                 android:layout_width="12dp"
                                 android:layout_height="12dp"
                                 android:src="@android:drawable/checkbox_on_background"
-                                app:tint="#4CAF50"/>
+                                app:tint="@color/green_wa"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Verified Account"
                                 android:textSize="10sp"
                                 android:textStyle="bold"
-                                android:textColor="#4CAF50"
+                                android:textColor="@color/green_income"
                                 android:layout_marginStart="4dp"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -124,7 +124,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        app:tint="#757575"/>
+                        app:tint="@color/gray"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -155,7 +155,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_nav_profile"
-                        app:tint="#757575"/>
+                        app:tint="@color/gray"/>
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -195,7 +195,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_others"
-                        app:tint="#757575"/>
+                        app:tint="@color/gray"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -240,7 +240,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/ic_menu_info_details"
-                        app:tint="#757575"/>
+                        app:tint="@color/gray"/>
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -270,7 +270,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/ic_menu_help"
-                        app:tint="#757575"/>
+                        app:tint="@color/gray"/>
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -288,9 +288,9 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginHorizontal="20dp"
                 android:text="Keluar Akun"
-                android:textColor="#D32F2F"
+                android:textColor="@color/red_expense"
                 android:textStyle="bold"
-                android:backgroundTint="#FFEBEE"
+                android:backgroundTint="@color/red_exit"
                 style="@style/Widget.MaterialComponents.Button.TextButton"/>
 
             <Button
@@ -303,7 +303,7 @@
                 android:text="Hapus Akun Permanen"
                 android:textColor="@color/white"
                 android:textStyle="bold"
-                android:backgroundTint="#D32F2F"/>
+                android:backgroundTint="@color/red_expense"/>
 
 
 
@@ -313,7 +313,7 @@
                 android:text="Qash App v1.0.0"
                 android:gravity="center"
                 android:textSize="12sp"
-                android:textColor="#BDBDBD" />
+                android:textColor="@color/bg_app" />
 
         </LinearLayout>
     </ScrollView>

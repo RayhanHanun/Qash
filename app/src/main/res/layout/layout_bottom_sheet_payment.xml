@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="No. Pelanggan"
-        android:textColor="#757575"/>
+        android:textColor="@color/gray_pay"/>
 
     <EditText
         android:id="@+id/et_customer_id"
@@ -50,7 +50,7 @@
         android:layout_marginTop="16dp"
         android:text="ℹ️ Pastikan nomor pelanggan sudah benar dan layanan aktif."
         android:textSize="12sp"
-        android:textColor="#9E9E9E"/>
+        android:textColor="@color/gray"/>
 
     <Button
         android:id="@+id/btn_pay_now"

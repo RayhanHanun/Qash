@@ -15,9 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.qash_finalproject.LoginActivity
 import com.example.qash_finalproject.R
-import com.example.qash_finalproject.SessionManager
 import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.data.User
 import com.example.qash_finalproject.viewmodel.QashViewModel
@@ -168,6 +166,5 @@ class ProfileFragment : Fragment() {
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
-        activity?.finish()
     }
 }

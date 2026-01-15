@@ -30,10 +30,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".ui.RegisterActivity"
             android:exported="false" />
         <activity
             android:name=".ui.EditProfileActivity"
@@ -60,22 +60,22 @@
             android:name=".grid.PbbActivity"
             android:exported="false" />
         <activity
-            android:name=".PromoActivity"
+            android:name=".ui.PromoActivity"
             android:exported="false" />
         <activity
-            android:name=".TopUpActivity"
+            android:name=".ui.TopUpActivity"
             android:exported="false" />
         <activity
-            android:name=".TransferActivity"
+            android:name=".ui.TransferActivity"
             android:exported="false" />
         <activity
-            android:name=".WithdrawActivity"
+            android:name=".ui.WithdrawActivity"
             android:exported="false" />
         <activity
-            android:name=".ScanActivity"
+            android:name=".ui.ScanActivity"
             android:exported="false" />
         <activity
-            android:name=".TransferFormActivity"
+            android:name=".ui.TransferFormActivity"
             android:exported="false" />
         <activity
             android:name=".grid.DonasiActivity"
@@ -90,7 +90,7 @@
             android:name=".ui.HelpActivity"
             android:exported="false" />
         <activity
-            android:name=".RequestActivity"
+            android:name=".ui.RequestActivity"
             android:exported="false" />
     </application>
 

@@ -6,7 +6,7 @@
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="btn_login">Masuk</string>
-    <string name="text_no_account">Belum punya akun? </string>
+    <string name="text_no_account">Belum punya akun?</string>
     <string name="text_register_now">Daftar Sekarang</string>
 
     <string-array name="payment_methods">

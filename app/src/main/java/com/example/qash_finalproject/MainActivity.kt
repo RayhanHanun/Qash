@@ -13,6 +13,9 @@ import com.example.qash_finalproject.ui.HistoryFragment
 import com.example.qash_finalproject.ui.HomeFragment
 import com.example.qash_finalproject.ui.InboxFragment
 import com.example.qash_finalproject.ui.ProfileFragment
+import com.example.qash_finalproject.ui.LoginActivity
+import com.example.qash_finalproject.ui.ScanActivity
+import com.example.qash_finalproject.ui.SessionManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
@@ -29,27 +32,24 @@ class MainActivity : AppCompatActivity() {
     private var isSessionChecked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // --- 1. LOGIKA PENERAPAN DARK MODE (Dijalankan Paling Awal) ---
+
         val sessionTemp = SessionManager(this)
         if (sessionTemp.isDarkMode()) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
-        // -------------------------------------------------------------
 
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
         sessionManager = SessionManager(this)
 
-        // --- 2. TAHAN SPLASH SCREEN ---
-        // Layar loading akan terus tampil sampai isSessionChecked = true
+
         splashScreen.setKeepOnScreenCondition {
             !isSessionChecked
         }
 
-        // --- 3. JALANKAN PENGECEKAN SESI & DATABASE ---
         checkLoginAndDatabase()
 
         setContentView(R.layout.activity_main)

@@ -1,4 +1,4 @@
-package com.example.qash_finalproject
+package com.example.qash_finalproject.ui
 
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -12,6 +12,7 @@ import com.budiyev.android.codescanner.CodeScannerView
 import com.budiyev.android.codescanner.DecodeCallback
 import com.budiyev.android.codescanner.ErrorCallback
 import com.budiyev.android.codescanner.ScanMode
+import com.example.qash_finalproject.R
 
 class ScanActivity : AppCompatActivity() {
 

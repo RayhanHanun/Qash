@@ -1,4 +1,4 @@
-package com.example.qash_finalproject
+package com.example.qash_finalproject.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater

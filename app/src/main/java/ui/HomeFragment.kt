@@ -13,14 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
-import com.example.qash_finalproject.PromoActivity // Pastikan import ini ada
 import com.example.qash_finalproject.R
-import com.example.qash_finalproject.RequestActivity
-import com.example.qash_finalproject.SessionManager
-import com.example.qash_finalproject.TopUpActivity
-import com.example.qash_finalproject.TransferActivity
-import com.example.qash_finalproject.WithdrawActivity
-import com.example.qash_finalproject.data.QashDatabase
 import com.example.qash_finalproject.grid.BpjsActivity
 import com.example.qash_finalproject.grid.DonasiActivity
 import com.example.qash_finalproject.grid.EmoneyActivity
@@ -31,6 +24,7 @@ import com.example.qash_finalproject.grid.PdamActivity
 import com.example.qash_finalproject.grid.PulsaActivity
 import com.example.qash_finalproject.viewmodel.QashViewModel
 import com.example.qash_finalproject.viewmodel.QashViewModelFactory
+import com.example.qash_finalproject.data.QashDatabase
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import java.text.NumberFormat
