@@ -40,9 +40,7 @@ class PdamActivity : AppCompatActivity() {
         viewModel.setUserId(sessionManager.getUserId())
 
         val spinner = findViewById<Spinner>(R.id.spinner_wilayah)
-        // PERBAIKAN ID: et_pdam_id
         val etIdPel = findViewById<TextInputEditText>(R.id.et_pdam_id)
-        // PERBAIKAN ID: btn_action
         val btnAction = findViewById<Button>(R.id.btn_action)
         val layoutRincian = findViewById<View>(R.id.layout_rincian)
         val tvBillAmount = findViewById<TextView>(R.id.tv_bill_amount)
